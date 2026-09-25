@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   TrueSpec Automotive — Design Tokens
+   Premium automotive: deep charcoal/graphite surfaces, warm metallic gold
+   accent, WhatsApp green reserved for WhatsApp CTAs only.
+   ========================================================================== */
+
+@theme {
+  /* --- Brand surfaces (graphite scale) --- */
+  --color-graphite-950: #0b0d0f;
+  --color-graphite-900: #12151a;
+  --color-graphite-850: #171b21;
+  --color-graphite-800: #1d222a;
+  --color-graphite-700: #262c36;
+  --color-graphite-600: #333a46;
+  --color-graphite-500: #4a5361;
+
+  /* --- Warm metallic gold accent --- */
+  --color-gold-50: #fdf8ed;
+  --color-gold-100: #f7ecd0;
+  --color-gold-200: #eed9a3;
+  --color-gold-300: #e3c06d;
+  --color-gold-400: #d9a94a;
+  --color-gold-500: #c8932f;
+  --color-gold-600: #a97424;
+  --color-gold-700: #85561f;
+  --color-gold-800: #5f3d18;
+  --color-gold-900: #3d2811;
+
+  /* --- Typography (soft grey / white) --- */
+  --color-ink-50: #f7f8f9;
+  --color-ink-100: #eceef1;
+  --color-ink-200: #d6dae0;
+  --color-ink-300: #b3bac4;
+  --color-ink-400: #8b949f;
+  --color-ink-500: #6b7480;
+
+  /* --- Status accents --- */
+  --color-whatsapp: #25d366;
+  --color-whatsapp-dark: #128c3f;
+  --color-status-available: #3fa96b;
+  --color-status-onorder: #d9a94a;
+  --color-status-landed: #6b93c9;
+  --color-danger: #d9544d;
+
+  /* --- Semantic --- */
+  --color-background: #0b0d0f;
+  --color-foreground: #f7f8f9;
+
+  /* --- Radii --- */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+
+  /* --- Fonts --- */
+  --font-display: var(--font-oswald), "Oswald", "Arial Narrow", sans-serif;
+  --font-sans: var(--font-inter), "Inter", system-ui, sans-serif;
+}
+
+/* ==========================================================================
+   Base layer
+   ========================================================================== */
+
+@layer base {
+  * {
+    border-color: var(--color-graphite-700);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-graphite-950);
+    color: var(--color-ink-100);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+
+  /* Visible, high-contrast focus state for every interactive element */
+  :focus-visible {
+    outline: 2px solid var(--color-gold-400);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* Respect reduced-motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ==========================================================================
+   Reusable component utilities
+   ========================================================================== */
+
+@utility container-page {
+  width: 100%;
+  margin-inline: auto;
+  max-width: 80rem;
+  padding-inline: 1rem;
+  @media (min-width: 640px) {
+    padding-inline: 1.5rem;
+  }
+  @media (min-width: 1024px) {
+    padding-inline: 2rem;
+  }
+}
+
+/* Skip link for keyboard users */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 0.75rem 1rem;
+  background: var(--color-gold-400);
+  color: var(--color-graphite-950);
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  left: 0.5rem;
+  top: 0.5rem;
+}
