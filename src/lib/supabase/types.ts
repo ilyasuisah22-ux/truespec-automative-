@@ -5,7 +5,7 @@
 
 export type VehicleStatus = "available" | "on_order" | "landed";
 
-export interface VehicleRow {
+export type VehicleRow = {
   id: string;
   slug: string;
   brand: string;
@@ -21,9 +21,9 @@ export interface VehicleRow {
   public_arrival_note: string | null;
   created_at: string;
   updated_at: string;
-}
+};
 
-export interface VehicleFinanceRow {
+export type VehicleFinanceRow = {
   vehicle_id: string;
   purchase_price_kobo: number;
   usa_trucking_cost_kobo: number;
@@ -35,38 +35,39 @@ export interface VehicleFinanceRow {
   sourcing_contact: string | null;
   created_at: string;
   updated_at: string;
-}
+};
 
-export interface VehicleImageRow {
+export type VehicleImageRow = {
   id: string;
   vehicle_id: string;
   storage_path: string;
   display_order: number;
   is_cover: boolean;
   created_at: string;
-}
+};
 
-export interface AdminActivityLogRow {
+export type AdminActivityLogRow = {
   id: string;
   actor_user_id: string;
   action: string;
   entity_type: string;
   entity_id: string | null;
+  metadata: Record<string, string> | null;
   created_at: string;
-}
+};
 
-export interface SiteSettingsRow {
+export type SiteSettingsRow = {
   id: number; // singleton row, always 1
   whatsapp_number: string;
   site_tagline: string;
   default_full_tank_cost_kobo: number;
   updated_at: string;
-}
+};
 
-export interface AdminUserRow {
+export type AdminUserRow = {
   user_id: string;
   created_at: string;
-}
+};
 
 export interface Database {
   public: {

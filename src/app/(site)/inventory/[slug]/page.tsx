@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarDays, Check, Gauge, Info, Palette } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/site/status-badge";
 import { VehicleGallery } from "@/components/site/vehicle-gallery";
@@ -60,21 +59,23 @@ export default async function VehicleDetailPage({ params }: PageProps) {
   const enquiry = buildWhatsappLink(settings.whatsapp_number, vehicleEnquiryMessage(vehicle));
 
   const specs = [
-    { icon: CalendarDays, label: "Year", value: String(vehicle.year) },
-    { icon: Gauge, label: "Mileage", value: formatMileage(vehicle.mileage) },
-    { icon: Palette, label: "Exterior", value: vehicle.exterior_color },
-    { icon: Palette, label: "Interior", value: vehicle.interior_color },
+    { label: "Year", value: String(vehicle.year) },
+    { label: "Mileage", value: formatMileage(vehicle.mileage) },
+    { label: "Exterior", value: vehicle.exterior_color },
+    { label: "Interior", value: vehicle.interior_color },
   ];
 
   return (
     <div className="container-page py-10 sm:py-14">
-      <Link
-        href="/inventory"
-        className="mb-8 inline-flex items-center gap-2 text-sm text-ink-300 hover:text-gold-200"
-      >
-        <ArrowLeft aria-hidden className="size-4" />
-        Back to inventory
-      </Link>
+      <nav aria-label="Breadcrumb" className="mb-8">
+        <ol className="flex items-center gap-1.5 text-xs text-ink-500">
+          <li><Link href="/" className="hover:text-gold-200 transition-colors">Home</Link></li>
+          <li aria-hidden><span className="text-graphite-600">/</span></li>
+          <li><Link href="/inventory" className="hover:text-gold-200 transition-colors">Inventory</Link></li>
+          <li aria-hidden><span className="text-graphite-600">/</span></li>
+          <li aria-current="page" className="text-ink-300">{vehicle.brand} {vehicle.model}</li>
+        </ol>
+      </nav>
 
       <div className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <VehicleGallery images={vehicle.images} title={title} />
@@ -82,7 +83,7 @@ export default async function VehicleDetailPage({ params }: PageProps) {
         <div className="space-y-6">
           <div>
             <StatusBadge status={vehicle.status} />
-            <h1 className="mt-4 font-display text-3xl tracking-wide text-ink-50">{title}</h1>
+            <h1 className="mt-4 font-display text-3xl tracking-wide text-ink-50 sm:text-4xl">{title}</h1>
             {vehicle.trim ? <p className="mt-1 text-sm text-ink-400">{vehicle.trim}</p> : null}
           </div>
 
@@ -100,7 +101,7 @@ export default async function VehicleDetailPage({ params }: PageProps) {
                 </p>
               </div>
 
-              <div className="border-t border-graphite-700 pt-4">
+              <div className="border-t border-graphite-700 pt-5">
                 <WhatsappCta
                   whatsappNumber={settings.whatsapp_number}
                   message={vehicleEnquiryMessage(vehicle)}
@@ -120,7 +121,7 @@ export default async function VehicleDetailPage({ params }: PageProps) {
           {vehicle.public_arrival_note ? (
             <Card>
               <CardHeader className="flex items-center gap-2">
-                <Info aria-hidden className="size-4 text-gold-400" />
+                <span aria-hidden className="size-4 text-gold-400" />
                 <CardTitle className="text-sm">Arrival note</CardTitle>
               </CardHeader>
               <CardContent>
@@ -135,10 +136,10 @@ export default async function VehicleDetailPage({ params }: PageProps) {
             </CardHeader>
             <CardContent>
               <dl className="grid grid-cols-2 gap-4">
-                {specs.map(({ icon: Icon, label, value }) => (
+                {specs.map(({ label, value }) => (
                   <div key={label}>
                     <dt className="flex items-center gap-1.5 text-[0.65rem] uppercase tracking-widest text-ink-500">
-                      <Icon aria-hidden className="size-3.5" />
+                      
                       {label}
                     </dt>
                     <dd className="mt-1 text-sm text-ink-100">{value}</dd>
@@ -151,14 +152,13 @@ export default async function VehicleDetailPage({ params }: PageProps) {
       </div>
 
       {vehicle.features.length > 0 ? (
-        <section className="mt-12 max-w-3xl">
-          <h2 className="font-display text-xl tracking-wide text-ink-50">
-            Notable features and options
-          </h2>
-          <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+        <section className="mx-auto mt-16 max-w-3xl">
+          <h2 className="font-display text-xl tracking-wide text-ink-50">Notable features</h2>
+          <div className="premium-divider my-6" />
+          <ul className="mt-6 grid gap-3 sm:grid-cols-2">
             {vehicle.features.map((feature) => (
               <li key={feature} className="flex items-start gap-2.5 text-sm text-ink-300">
-                <Check aria-hidden className="mt-0.5 size-4 shrink-0 text-gold-400" />
+                <span aria-hidden className="mt-0.5 size-4 shrink-0 text-gold-400">✓</span>
                 {feature}
               </li>
             ))}

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Fuel, Gauge, Palette } from "lucide-react";
+import { ArrowRight, Gauge, Palette } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { StatusBadge } from "@/components/site/status-badge";
 import { coverImage, type PublicVehicle } from "@/lib/inventory";
@@ -14,10 +14,10 @@ export function VehicleCard({ vehicle }: { vehicle: PublicVehicle }) {
   const title = vehicleTitle(vehicle);
 
   return (
-    <Card className="group overflow-hidden transition-colors hover:border-gold-500/50">
+    <Card className="vehicle-card-hover overflow-hidden group">
       <Link
         href={href}
-        className="block rounded-t-lg focus-visible:outline-offset-4"
+        className="block focus-visible:outline-offset-4"
         aria-label={`View details for ${title}`}
       >
         <div className="relative aspect-[3/2] w-full overflow-hidden bg-graphite-850">
@@ -27,7 +27,7 @@ export function VehicleCard({ vehicle }: { vehicle: PublicVehicle }) {
               alt={`${title} — ${vehicle.exterior_color}`}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+              className="vehicle-card-image object-cover"
               loading="lazy"
             />
           ) : (
@@ -35,6 +35,8 @@ export function VehicleCard({ vehicle }: { vehicle: PublicVehicle }) {
               No photograph available
             </div>
           )}
+
+          <div className="absolute inset-0 bg-gradient-to-t from-graphite-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
           <div className="absolute left-3 top-3">
             <StatusBadge status={vehicle.status} />
@@ -44,8 +46,8 @@ export function VehicleCard({ vehicle }: { vehicle: PublicVehicle }) {
 
       <div className="flex flex-col gap-4 p-5">
         <div>
-          <p className="font-display text-lg tracking-wide text-ink-50">
-            <Link href={href} className="hover:text-gold-200">
+          <p className="font-display text-lg tracking-wide text-ink-50 group-hover:text-gold-200 transition-colors">
+            <Link href={href}>
               {vehicle.brand} {vehicle.model}
             </Link>
           </p>
@@ -65,26 +67,26 @@ export function VehicleCard({ vehicle }: { vehicle: PublicVehicle }) {
             <dt className="sr-only">Exterior colour</dt>
             <dd className="truncate">{vehicle.exterior_color}</dd>
           </div>
-          <div className="flex items-center gap-1.5">
-            <Fuel aria-hidden className="size-3.5 text-ink-500" />
+          <div className="flex items-center gap-1.5 col-span-2">
+            <Palette aria-hidden className="size-3.5 text-ink-500" />
             <dt className="sr-only">Interior</dt>
             <dd className="truncate">{vehicle.interior_color}</dd>
           </div>
         </dl>
 
-        <div className="flex items-end justify-between border-t border-graphite-700 pt-4">
+        <div className="flex items-end justify-between border-t border-graphite-700/50 pt-4">
           <div>
-            <p className="text-[0.65rem] uppercase tracking-widest text-ink-500">Doorstep price</p>
+            <p className="text-[0.65rem] uppercase tracking-widest text-ink-500">
+              Doorstep price
+            </p>
             <p className="font-display text-lg text-gold-300">
               {displayCustomerPrice(vehicle.customer_price_kobo)}
             </p>
           </div>
-          <Link
-            href={href}
-            className="rounded-sm text-sm font-medium text-ink-200 underline-offset-4 hover:text-gold-200 hover:underline"
-          >
+          <span className="inline-flex items-center gap-1 text-xs font-medium text-ink-300 group-hover:text-gold-200 group-hover:underline">
             View details
-          </Link>
+            <ArrowRight aria-hidden className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+          </span>
         </div>
       </div>
     </Card>

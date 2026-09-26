@@ -1,16 +1,20 @@
 import { cn } from "@/lib/utils";
 
 /**
- * Temporary text-based brand treatment.
- *
- * The client has not supplied an official logo file. This is deliberately a
- * typographic wordmark — NOT a fabricated version of TrueSpec's real logo —
- * and is designed to be swapped for the official asset when Umar provides it.
+ * Premium brand mark.
+ * Uses the condensed industrial display typography (Oswald) with gold accent.
+ * Ready to swap for official logo when provided.
  */
-export function BrandMark({ className }: { className?: string }) {
+export function BrandMark({ className, size = "md" }: { className?: string; size?: "sm" | "md" | "lg" }) {
+  const sizeClasses = {
+    sm: "text-base sm:text-lg",
+    md: "text-lg sm:text-xl",
+    lg: "text-xl sm:text-2xl lg:text-3xl",
+  };
+
   return (
-    <span className={cn("flex flex-col leading-none", className)}>
-      <span className="font-display text-lg font-600 uppercase tracking-[0.18em] text-ink-50 sm:text-xl">
+    <span className={cn("flex flex-col leading-none", sizeClasses[size], className)}>
+      <span className="font-display font-600 uppercase tracking-[0.18em] text-ink-50">
         True<span className="text-gold-400">Spec</span>
       </span>
       <span className="mt-1 font-sans text-[0.6rem] uppercase tracking-[0.34em] text-ink-400">

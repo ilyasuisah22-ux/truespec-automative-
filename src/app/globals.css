@@ -57,11 +57,27 @@
   /* --- Fonts --- */
   --font-display: var(--font-oswald), "Oswald", "Arial Narrow", sans-serif;
   --font-sans: var(--font-inter), "Inter", system-ui, sans-serif;
-}
 
-/* ==========================================================================
-   Base layer
-   ========================================================================== */
+  /* --- Spacing scale --- */
+  --space-section: 4rem;
+  --space-section-sm: 2.5rem;
+  --space-component: 1.5rem;
+  --space-element: 1rem;
+  --space-element-sm: 0.75rem;
+  --space-tight: 0.5rem;
+
+  /* --- Transitions --- */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* --- Shadows --- */
+  --shadow-elevation-1: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-elevation-2: 0 4px 6px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-elevation-3: 0 10px 15px rgba(0, 0, 0, 0.3), 0 4px 6px rgba(0, 0, 0, 0.15);
+  --shadow-elevation-4: 0 20px 25px rgba(0, 0, 0, 0.4), 0 10px 10px rgba(0, 0, 0, 0.15);
+  --shadow-gold-glow: 0 0 30px rgba(217, 169, 74, 0.25);
+}
 
 @layer base {
   * {
@@ -90,14 +106,12 @@
     text-transform: uppercase;
   }
 
-  /* Visible, high-contrast focus state for every interactive element */
   :focus-visible {
     outline: 2px solid var(--color-gold-400);
     outline-offset: 2px;
     border-radius: 2px;
   }
 
-  /* Respect reduced-motion preferences */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -142,4 +156,206 @@
 .skip-link:focus {
   left: 0.5rem;
   top: 0.5rem;
+}
+
+/* ==========================================================================
+   Premium component utilities
+   ========================================================================== */
+
+@utility elevation-1 {
+  box-shadow: var(--shadow-elevation-1);
+}
+
+@utility elevation-2 {
+  box-shadow: var(--shadow-elevation-2);
+}
+
+@utility elevation-3 {
+  box-shadow: var(--shadow-elevation-3);
+}
+
+@utility elevation-4 {
+  box-shadow: var(--shadow-elevation-4);
+}
+
+@utility gold-glow {
+  box-shadow: var(--shadow-gold-glow);
+}
+
+@utility text-gradient-gold {
+  background: linear-gradient(135deg, var(--color-gold-300), var(--color-gold-500));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@utility transition-smooth {
+  transition: all var(--transition-normal);
+}
+
+@utility transition-fast-smooth {
+  transition: all var(--transition-fast);
+}
+
+/* Hero gradient overlay */
+@utility hero-gradient {
+  background: linear-gradient(
+    90deg,
+    var(--color-graphite-950) 0%,
+    var(--color-graphite-950) 40%,
+    color-mix(in srgb, var(--color-graphite-950) 60%, transparent) 70%,
+    transparent 100%
+  );
+}
+
+/* Gold accent line */
+@utility gold-accent-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-gold-400), transparent);
+}
+
+/* Premium card hover */
+@utility card-premium-hover {
+  transition: border-color var(--transition-normal), box-shadow var(--transition-normal), transform var(--transition-fast);
+}
+
+.card-premium-hover:hover {
+  border-color: var(--color-gold-400);
+  box-shadow: var(--shadow-elevation-3);
+  transform: translateY(-2px);
+}
+
+/* Mobile-first responsive typography */
+@utility text-display-hero {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  line-height: 1.05;
+}
+
+@utility text-display-section {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  line-height: 1.1;
+}
+
+@utility text-display-subsection {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+  line-height: 1.2;
+}
+
+/* Premium button states */
+@utility btn-premium-primary {
+  @apply inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all duration-200;
+  @apply bg-gold-400 text-graphite-950 hover:bg-gold-300 active:bg-gold-500;
+  @apply hover:shadow-lg hover:shadow-gold-400/30;
+}
+
+@utility btn-premium-outline {
+  @apply inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all duration-200;
+  @apply border border-graphite-600 bg-transparent text-ink-100 hover:border-gold-400 hover:text-gold-200 hover:bg-gold-400/5;
+}
+
+@utility btn-premium-ghost {
+  @apply inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all duration-200;
+  @apply bg-transparent text-ink-200 hover:bg-graphite-800 hover:text-ink-50;
+}
+
+/* Section spacing utilities */
+@utility section-spacing {
+  padding-block: var(--space-section);
+}
+
+@utility section-spacing-sm {
+  padding-block: var(--space-section-sm);
+}
+
+/* Scrollbar styling for mobile thumbnail strips */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Premium image loading placeholder */
+.image-loading {
+  background: linear-gradient(
+    90deg,
+    var(--color-graphite-800) 25%,
+    var(--color-graphite-700) 50%,
+    var(--color-graphite-800) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Premium vehicle card image transition */
+.vehicle-card-image {
+  transition: transform var(--transition-slow);
+}
+
+/* Gallery thumbnail transition */
+.gallery-thumb {
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.gallery-thumb-active {
+  border-color: var(--color-gold-400);
+  box-shadow: 0 0 0 1px var(--color-gold-400), 0 0 12px rgba(217, 169, 74, 0.25);
+}
+
+/* Gold glow utility */
+.gold-glow {
+  box-shadow: var(--shadow-gold-glow);
+}
+
+/* Premium link underline */
+.premium-link {
+  position: relative;
+  text-decoration: none;
+}
+.premium-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--color-gold-400);
+  transition: width var(--transition-normal);
+}
+.premium-link:hover::after {
+  width: 100%;
+}
+
+/* Section hero divider */
+.section-hero-divider {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-gold-400), transparent);
+  opacity: 0.3;
+}
+
+/* Image overlay gradient */
+.image-overlay-gradient {
+  background: linear-gradient(
+    to top,
+    var(--color-graphite-950) 0%,
+    transparent 60%
+  );
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }

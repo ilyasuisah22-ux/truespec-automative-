@@ -8,7 +8,7 @@ import { resolveImageUrl } from "@/lib/images";
 import type { PublicImage } from "@/lib/serializers/public-vehicle";
 
 /**
- * Accessible vehicle image gallery.
+ * Premium accessible vehicle image gallery.
  *
  * Interaction support:
  *  - Thumbnails are real buttons with aria-labels and aria-current state.
@@ -63,14 +63,15 @@ export function VehicleGallery({
 
   return (
     <div
-      className="space-y-3"
+      className="space-y-4"
       role="group"
       aria-roledescription="image gallery"
       aria-label={`${title} photographs`}
       onKeyDown={onKeyDown}
       tabIndex={-1}
     >
-      <div className="relative aspect-[3/2] w-full overflow-hidden rounded-lg border border-graphite-700 bg-graphite-850">
+      {/* Main image */}
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg border border-graphite-700 bg-graphite-850 lg:aspect-[3/2]">
         <Image
           key={active.id}
           src={resolveImageUrl(active.storage_path)}
@@ -81,13 +82,16 @@ export function VehicleGallery({
           className="object-cover"
         />
 
+        {/* Image gradient overlay for depth */}
+        <div className="absolute inset-0 bg-gradient-to-t from-graphite-950/20 via-transparent to-transparent pointer-events-none" />
+
         {total > 1 ? (
           <>
             <button
               type="button"
               onClick={() => go(index - 1)}
               aria-label="Previous photograph"
-              className="absolute left-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md border border-graphite-600 bg-graphite-950/80 text-ink-100 hover:border-gold-400 hover:text-gold-200"
+              className="absolute left-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md border border-graphite-600 bg-graphite-950/80 text-ink-100 hover:border-gold-400 hover:text-gold-200 transition-colors"
             >
               <ChevronLeft aria-hidden />
             </button>
@@ -95,7 +99,7 @@ export function VehicleGallery({
               type="button"
               onClick={() => go(index + 1)}
               aria-label="Next photograph"
-              className="absolute right-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md border border-graphite-600 bg-graphite-950/80 text-ink-100 hover:border-gold-400 hover:text-gold-200"
+              className="absolute right-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md border border-graphite-600 bg-graphite-950/80 text-ink-100 hover:border-gold-400 hover:text-gold-200 transition-colors"
             >
               <ChevronRight aria-hidden />
             </button>
@@ -111,8 +115,9 @@ export function VehicleGallery({
         Photograph {index + 1} of {total}
       </p>
 
+      {/* Thumbnail strip */}
       {total > 1 ? (
-        <ul className="flex snap-x gap-3 overflow-x-auto pb-1">
+        <ul className="flex snap-x gap-3 overflow-x-auto scrollbar-hide pb-2">
           {images.map((img, i) => (
             <li key={img.id} className="snap-start">
               <button
@@ -121,8 +126,10 @@ export function VehicleGallery({
                 aria-label={`Show photograph ${i + 1}`}
                 aria-current={i === index}
                 className={cn(
-                  "relative block h-16 w-24 shrink-0 overflow-hidden rounded-md border-2 transition-colors sm:h-20 sm:w-32",
-                  i === index ? "border-gold-400" : "border-graphite-700 hover:border-graphite-500"
+                  "relative block h-16 w-24 shrink-0 overflow-hidden rounded-md border-2 transition-all sm:h-20 sm:w-32",
+                  i === index
+                    ? "border-gold-400 ring-1 ring-gold-400/30 scale-105"
+                    : "border-graphite-700 hover:border-graphite-500 hover:scale-102"
                 )}
               >
                 <Image
