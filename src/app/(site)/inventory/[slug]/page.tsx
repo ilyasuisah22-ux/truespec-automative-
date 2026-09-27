@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/site/status-badge";
 import { VehicleGallery } from "@/components/site/vehicle-gallery";
 import { WhatsappCta } from "@/components/site/whatsapp-cta";
-import { getPublicSettings, getPublicVehicleBySlug, getPublicVehicleSlugs } from "@/lib/data/public";
+import { getPublicSettings, getPublicVehicleBySlug } from "@/lib/data/public";
 import {
   coverImage,
   displayCustomerPrice,
@@ -18,11 +18,6 @@ import { resolveImageUrl } from "@/lib/images";
 interface PageProps {
   // Next.js 16: route params are async
   params: Promise<{ slug: string }>;
-}
-
-export async function generateStaticParams() {
-  const slugs = await getPublicVehicleSlugs();
-  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
