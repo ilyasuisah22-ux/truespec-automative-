@@ -7,6 +7,8 @@ import { WhatsappCta } from "@/components/site/whatsapp-cta";
 import { CallCta } from "@/components/site/call-cta";
 import { coverImage, type PublicVehicle } from "@/lib/inventory";
 import { PhotoPending } from "@/components/site/photo-pending";
+import { VehicleIllustration } from "@/components/site/vehicle-illustration";
+import { hasVehicleArtwork } from "@/lib/demo/vehicle-artwork";
 import { displayCustomerPrice, formatMileage, vehicleTitle } from "@/lib/inventory";
 import { resolveImageUrl } from "@/lib/images";
 import { vehicleEnquiryMessage } from "@/lib/whatsapp";
@@ -44,6 +46,12 @@ export function VehicleCard({
               className="vehicle-card-image object-cover"
               loading="lazy"
             />
+          ) : hasVehicleArtwork(vehicle.id) ? (
+            /* Illustrative artwork, scoped to THIS vehicle by id. Real uploaded
+               photography above always takes precedence. The artwork carries its
+               own "Illustrative" badge, so a card is never mistaken for a
+               photograph of the car being sold. */
+            <VehicleIllustration vehicleId={vehicle.id} vehicleName={title} />
           ) : (
             <PhotoPending compact />
           )}

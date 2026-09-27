@@ -75,7 +75,15 @@ export default async function VehicleDetailPage({ params }: PageProps) {
       </nav>
 
       <div className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <VehicleGallery images={vehicle.images} title={title} />
+        {/* Keyed on the vehicle id so navigating between vehicles remounts the
+            gallery and resets it to the cover frame, with no ref write and no
+            effect. */}
+        <VehicleGallery
+          key={vehicle.id}
+          images={vehicle.images}
+          title={title}
+          vehicleId={vehicle.id}
+        />
 
         <div className="space-y-6">
           <div>

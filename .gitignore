@@ -47,3 +47,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+
+# Local artwork preview renders (dev aid, regenerable via scripts/render-artwork-preview.ts)
+.artwork-preview/

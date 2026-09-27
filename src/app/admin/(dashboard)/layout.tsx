@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LogOut, ShieldAlert, TriangleAlert } from "lucide-react";
-import { AdminNav } from "@/components/admin/admin-nav";
+import { AdminSidebar } from "@/components/admin/admin-nav";
 import { AdminThemeToggle } from "@/components/admin/admin-theme-toggle";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
@@ -81,10 +81,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
             {/* `adaptive` ships both official ink variants and swaps them with CSS,
                 so the black lockup shows on the light dashboard header. Pinning
                 the white lockup here would be invisible in light mode. */}
-            <Link href="/admin" aria-label="Dashboard home" className="shrink-0 rounded-sm">
+            <Link
+              href="/admin"
+              aria-label="Dashboard home"
+              className="hidden shrink-0 rounded-sm lg:inline-flex"
+            >
               <BrandMark surface="adaptive" />
             </Link>
-            <span aria-hidden className="hidden h-7 w-px bg-graphite-700 sm:block" />
+            <span aria-hidden className="hidden h-7 w-px bg-graphite-700 lg:block" />
             <span className="hidden truncate text-xs uppercase tracking-[0.22em] text-ink-400 sm:block">
               Operations
             </span>
@@ -103,41 +107,43 @@ export default async function DashboardLayout({ children }: { children: React.Re
             </form>
           </div>
         </div>
-
-        <div className="border-t border-graphite-800">
-          <div className="container-page py-2">
-            <AdminNav />
-          </div>
-        </div>
       </header>
 
-      {demo || prototypeFleet ? (
-        <div className="border-b border-status-onorder/40 bg-status-onorder/10">
-          <div className="container-page flex items-start gap-2.5 py-3 text-xs text-ink-100">
-            <TriangleAlert aria-hidden className="mt-0.5 size-4 shrink-0 text-status-onorder" />
-            {demo ? (
-              <p>
-                <strong className="font-semibold">Demonstration data.</strong> Inventory and
-                financial figures shown are illustrative sample records, not TrueSpec
-                Automotive&apos;s real business data. Supabase is not connected in this
-                deployment, so create, edit and delete are disabled — see the README to
-                connect your project.
-              </p>
-            ) : (
-              <p>
-                <strong className="font-semibold">Prototype inventory.</strong> Your database is
-                connected but contains no vehicles yet, so the dashboard is showing the
-                demonstration fleet. Add your first vehicle to replace it — the public showroom
-                switches to real listings as soon as one exists.
-              </p>
-            )}
-          </div>
-        </div>
-      ) : null}
+      {/* Sidebar + content. The rail is hidden below `lg`, where
+          AdminSidebar renders the same navigation in a drawer instead. */}
+      <div className="flex flex-1 items-start">
+        <AdminSidebar />
 
-      <main id="main" className="flex-1">
-        <div className="container-page py-8 sm:py-10">{children}</div>
-      </main>
+        <div className="min-w-0 flex-1">
+          {demo || prototypeFleet ? (
+            <div className="border-b border-status-onorder/40 bg-status-onorder/10">
+              <div className="container-page flex items-start gap-2.5 py-3 text-xs text-ink-100">
+                <TriangleAlert aria-hidden className="mt-0.5 size-4 shrink-0 text-status-onorder" />
+                {demo ? (
+                  <p>
+                    <strong className="font-semibold">Demonstration data.</strong> Inventory and
+                    financial figures shown are illustrative sample records, not TrueSpec
+                    Automotive&apos;s real business data. Supabase is not connected in this
+                    deployment, so create, edit and delete are disabled â€” see the README to
+                    connect your project.
+                  </p>
+                ) : (
+                  <p>
+                    <strong className="font-semibold">Prototype inventory.</strong> Your database is
+                    connected but contains no vehicles yet, so the dashboard is showing the
+                    demonstration fleet. Add your first vehicle to replace it â€” the public showroom
+                    switches to real listings as soon as one exists.
+                  </p>
+                )}
+              </div>
+            </div>
+          ) : null}
+
+          <main id="main" className="min-w-0">
+            <div className="container-page py-8 sm:py-10">{children}</div>
+          </main>
+        </div>
+      </div>
 
       <footer className="border-t border-graphite-800 py-5">
         <div className="container-page flex flex-wrap items-center justify-between gap-3 text-xs text-ink-500">
@@ -146,7 +152,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             All dashboard operations are authorised server-side and logged.
           </p>
           <Link href="/" className="hover:text-gold-200">
-            View public showroom →
+            View public showroom â†’
           </Link>
         </div>
       </footer>

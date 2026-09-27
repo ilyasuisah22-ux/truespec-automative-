@@ -1,27 +1,37 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { VehicleIllustration } from "@/components/site/vehicle-illustration";
 import { ButtonLink } from "@/components/ui/button";
 import { DEFAULT_GENERAL_MESSAGE, buildWhatsappLink } from "@/lib/whatsapp";
 
 export interface HeroSlide {
-  /** Public image path (currently `/demo/vehicles/*.jpg`). */
-  src: string;
+  /**
+   * Vehicle this slide showcases, as a demonstration vehicle id. The hero draws
+   * that vehicle's own illustration, so the frame and the `featured` label are
+   * derived from the SAME record and can never disagree.
+   */
+  vehicleId: string;
   eyebrow: string;
   /** Rendered on line one of the headline. */
   headline: string;
   /** Rendered on line two in the metallic gold gradient. */
   headlineAccent: string;
   body: string;
-  /** Vehicle the slide showcases — surfaced as a pill so it reads as a listing. */
+  /** Vehicle the slide showcases â€” surfaced as a pill so it reads as a listing. */
   featured?: string;
 }
 
-const ROTATION_MS = 7000;
+/**
+ * Time each frame is held before the hero advances.
+ *
+ * 2 seconds, as specified. The crossfade itself is 1000ms, so frames overlap
+ * slightly and the sequence reads as continuous motion rather than a hard cut.
+ */
+const ROTATION_MS = 2000;
 
 /*
  * `prefers-reduced-motion` is an external, media-query-backed store, so it is
@@ -125,24 +135,28 @@ export function CinematicHero({
       <div className="absolute inset-0 -z-10">
         {slides.map((slide, i) => (
           <div
-            key={slide.src}
+            key={slide.vehicleId}
             aria-hidden
               className={cn(
-                "absolute inset-0 transition-opacity duration-[1500ms] ease-out",
+                "absolute inset-0 transition-opacity duration-1000 ease-out",
                 i === index ? "opacity-100" : "opacity-0"
               )}
           >
-            <Image
-              src={slide.src}
-              alt=""
-              fill
-              priority={i === 0}
-              sizes="100vw"
+            {/* The frame is the SLIDE'S OWN vehicle artwork, keyed by vehicle id,
+                so the copy can never claim one marque while showing another. */}
+            <div
               className={cn(
-                "object-cover object-center",
+                "h-full w-full",
                 i === index && !reducedMotion ? "ken-burns" : undefined
               )}
-            />
+            >
+              <VehicleIllustration
+                vehicleId={slide.vehicleId}
+                view="three-quarter"
+                vehicleName={slide.featured ?? "Featured vehicle"}
+                showBadge={false}
+              />
+            </div>
           </div>
         ))}
 
@@ -150,9 +164,16 @@ export function CinematicHero({
             scrim normalises the photograph's brightness, the theme-coloured
             wash lifts the background behind the copy, and the bottom scrim
             keeps the frame controls readable. */}
-        <div className="absolute inset-0 bg-scrim/35" />
+        <div className="absolute inset-0 bg-scrim/20" />
         <div className="absolute inset-0 hero-gradient" />
         <div className="absolute inset-x-0 bottom-0 h-2/5 scrim-gradient opacity-60" />
+
+        {/* Permanent disclosure. The hero suppresses the per-frame badge (it
+            would strobe at a 2s cadence), so the statement is made once here,
+            where it stays on screen for the whole rotation. */}
+        <p className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-sm bg-graphite-950/70 px-2.5 py-1 text-center text-[0.6rem] uppercase tracking-[0.16em] text-ink-400 backdrop-blur-sm">
+          Illustrative artwork · not photography
+        </p>
       </div>
 
       {/* Compact footprint: the hero sets the tone and hands the visitor to the
@@ -160,7 +181,7 @@ export function CinematicHero({
           peeking into the first screen, so cars are never more than one scroll
           away. Minimums exist only so short landscape phones still fit the copy. */}
       <div className="container-page relative flex min-h-[24rem] flex-col justify-center py-14 sm:py-16 lg:min-h-[27rem] lg:py-20">
-        <div key={active.src} className="max-w-3xl hero-copy-rise">
+        <div key={active.vehicleId} className="max-w-3xl hero-copy-rise">
           <p className="mb-4 inline-flex items-center gap-2 border border-gold-500/40 bg-gold-500/10 px-3.5 py-1.5 text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-gold-300">
             <span aria-hidden className="size-1.5 rounded-full bg-gold-400" />
             {active.eyebrow}
@@ -219,7 +240,7 @@ export function CinematicHero({
           >
             {slides.map((slide, i) => (
               <button
-                key={slide.src}
+                key={slide.vehicleId}
                 type="button"
                 aria-current={i === index ? "true" : undefined}
                 aria-label={`Show ${slide.featured ?? `slide ${i + 1}`}`}
@@ -246,3 +267,6 @@ export function CinematicHero({
     </section>
   );
 }
+
+
+

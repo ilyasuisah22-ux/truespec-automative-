@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -16,14 +16,15 @@ import { InventoryQuickNav } from "@/components/site/inventory-quick-nav";
 import { WhatsappCta } from "@/components/site/whatsapp-cta";
 import { CallCta } from "@/components/site/call-cta";
 import { getPublicSettings } from "@/lib/data/public";
+import { DEMO_VEHICLE_IDS } from "@/lib/demo/demo-data";
 import { DEFAULT_GENERAL_MESSAGE } from "@/lib/whatsapp";
 
 export const metadata: Metadata = {
-  title: "TrueSpec Automotive — Premium Vehicle Import for Nigeria",
+  title: "TrueSpec Automotive â€” Premium Vehicle Import for Nigeria",
   description:
     "Browse TrueSpec Automotive's curated inventory of available, on-order and landed vehicles with transparent doorstep pricing and direct WhatsApp enquiry.",
   openGraph: {
-    title: "TrueSpec Automotive — Premium Vehicle Import",
+    title: "TrueSpec Automotive â€” Premium Vehicle Import",
     description: "Transparent doorstep pricing on sourced and imported vehicles.",
     type: "website",
   },
@@ -34,44 +35,49 @@ export const metadata: Metadata = {
  *
  * The `<h1>` copy is intentionally constant across frames so the page has one
  * stable, indexable headline; only the supporting line, eyebrow and featured
- * vehicle rotate. Photography is the demonstration fleet under
- * `/public/demo/vehicles/`.
+ * vehicle rotate.
+ *
+ * Each slide names a VEHICLE ID, not an image path. The hero renders that
+ * vehicle's own illustrative artwork, so the frame and the "Featured" label are
+ * derived from the same record and can never drift out of sync — the previous
+ * implementation paired hand-written labels with hand-written image paths, which
+ * is exactly how a slide ends up announcing a BMW over a Mercedes.
  */
 const HERO_SLIDES: HeroSlide[] = [
   {
-    src: "/demo/vehicles/bmw-x5-exterior.jpg",
-    eyebrow: "German engineering · Verified history",
+    vehicleId: DEMO_VEHICLE_IDS.bmwX5,
+    eyebrow: "German engineering Â· Verified history",
     headline: "Drive something",
     headlineAccent: "exceptional",
     body: "Verified, cleared and ready for inspection in Lagos. Every unit is priced fully landed, so the figure you see is the figure you pay.",
     featured: "BMW X5 xDrive40i M Sport",
   },
   {
-    src: "/demo/vehicles/mercedes-gle-exterior.jpg",
-    eyebrow: "Sourcing · Inspection · Import",
+    vehicleId: DEMO_VEHICLE_IDS.mercedesGle,
+    eyebrow: "Sourcing Â· Inspection Â· Import",
     headline: "Drive something",
     headlineAccent: "exceptional",
     body: "Direct UK and Gulf stock with documented history. We handle purchase, shipping, clearing and doorstep delivery from end to end.",
     featured: "Mercedes-Benz GLE 450",
   },
   {
-    src: "/demo/vehicles/range-rover-sport-exterior.jpg",
-    eyebrow: "UK · USA · Gulf sourcing",
+    vehicleId: DEMO_VEHICLE_IDS.rangeRoverSport,
+    eyebrow: "UK Â· USA Â· Gulf sourcing",
     headline: "Drive something",
     headlineAccent: "exceptional",
-    body: "Name the exact vehicle you want and we source it — inspected before purchase, photographed honestly and shipped with a written cost breakdown.",
+    body: "Name the exact vehicle you want and we source it â€” inspected before purchase, photographed honestly and shipped with a written cost breakdown.",
     featured: "Range Rover Sport P400",
   },
   {
-    src: "/demo/vehicles/lexus-rx-exterior.jpg",
-    eyebrow: "Japanese reliability · Premium comfort",
+    vehicleId: DEMO_VEHICLE_IDS.lexusRx,
+    eyebrow: "Japanese reliability Â· Premium comfort",
     headline: "Drive something",
     headlineAccent: "exceptional",
     body: "From allocation to keys in hand, one team owns your order. Track every milestone and receive your vehicle on a full tank.",
     featured: "Lexus RX 350 F SPORT",
   },
   {
-    src: "/demo/vehicles/porsche-cayenne-exterior.jpg",
+    vehicleId: DEMO_VEHICLE_IDS.porscheCayenne,
     eyebrow: "A showroom, not a marketplace",
     headline: "Drive something",
     headlineAccent: "exceptional",
@@ -79,8 +85,8 @@ const HERO_SLIDES: HeroSlide[] = [
     featured: "Porsche Cayenne",
   },
   {
-    src: "/demo/vehicles/land-cruiser-exterior.jpg",
-    eyebrow: "Built for Africa · Legendary durability",
+    vehicleId: DEMO_VEHICLE_IDS.landCruiser,
+    eyebrow: "Built for Africa Â· Legendary durability",
     headline: "Drive something",
     headlineAccent: "exceptional",
     body: "The definitive African SUV, sourced from GCC markets with full service records and ready for Nigerian roads.",
@@ -230,7 +236,7 @@ export default async function HomePage() {
           <div className="mb-7 flex flex-wrap items-baseline justify-between gap-3">
             <h2 className="text-display-subsection text-ink-50">How it works</h2>
             <p className="text-sm text-ink-400">
-              One team holds the whole chain — sourcing, shipping, clearing and delivery.
+              One team holds the whole chain â€” sourcing, shipping, clearing and delivery.
             </p>
           </div>
 
