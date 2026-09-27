@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Alert } from "@/components/ui/alert";
 import { InventoryBrowser } from "@/components/site/inventory-browser";
-import { getPublicVehicles } from "@/lib/data/public";
+import { getPublicSettings, getPublicVehicles } from "@/lib/data/public";
 
 export const metadata: Metadata = {
   title: "Inventory",
@@ -13,8 +13,11 @@ export const revalidate = 60;
 
 export default async function InventoryPage() {
   let vehicles;
+  let whatsappNumber = "";
   try {
-    vehicles = await getPublicVehicles();
+    const [rows, settings] = await Promise.all([getPublicVehicles(), getPublicSettings()]);
+    vehicles = rows;
+    whatsappNumber = settings.whatsapp_number;
   } catch {
     return (
       <div className="container-page py-16">
@@ -40,7 +43,7 @@ export default async function InventoryPage() {
         </p>
       </header>
 
-      <InventoryBrowser vehicles={vehicles} />
+      <InventoryBrowser vehicles={vehicles} whatsappNumber={whatsappNumber} />
     </div>
   );
 }

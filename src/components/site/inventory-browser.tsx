@@ -15,7 +15,13 @@ type SortKey = "newest" | "price-asc" | "price-desc" | "mileage-asc" | "year-des
  * Search and sorting operate strictly on the real vehicles passed in from the
  * server-rendered data layer — nothing is hardcoded.
  */
-export function InventoryBrowser({ vehicles }: { vehicles: PublicVehicle[] }) {
+export function InventoryBrowser({
+  vehicles,
+  whatsappNumber,
+}: {
+  vehicles: PublicVehicle[];
+  whatsappNumber: string;
+}) {
   const [query, setQuery] = React.useState("");
   const [sort, setSort] = React.useState<SortKey>("newest");
 
@@ -109,7 +115,7 @@ export function InventoryBrowser({ vehicles }: { vehicles: PublicVehicle[] }) {
         <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((vehicle) => (
             <li key={vehicle.id}>
-              <VehicleCard vehicle={vehicle} />
+              <VehicleCard vehicle={vehicle} whatsappNumber={whatsappNumber} />
             </li>
           ))}
         </ul>

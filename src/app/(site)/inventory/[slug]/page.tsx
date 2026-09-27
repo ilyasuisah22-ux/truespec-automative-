@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Check, ClipboardList, Gauge, CalendarDays } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/site/status-badge";
 import { VehicleGallery } from "@/components/site/vehicle-gallery";
 import { WhatsappCta } from "@/components/site/whatsapp-cta";
+import { CallCta } from "@/components/site/call-cta";
 import { getPublicSettings, getPublicVehicleBySlug } from "@/lib/data/public";
 import {
   coverImage,
@@ -12,7 +14,7 @@ import {
   formatMileage,
   vehicleTitle,
 } from "@/lib/inventory";
-import { buildWhatsappLink, vehicleEnquiryMessage } from "@/lib/whatsapp";
+import { vehicleEnquiryMessage } from "@/lib/whatsapp";
 import { resolveImageUrl } from "@/lib/images";
 
 interface PageProps {
@@ -51,7 +53,7 @@ export default async function VehicleDetailPage({ params }: PageProps) {
   if (!vehicle) notFound();
 
   const title = vehicleTitle(vehicle);
-  const enquiry = buildWhatsappLink(settings.whatsapp_number, vehicleEnquiryMessage(vehicle));
+  const enquiryMessage = vehicleEnquiryMessage(vehicle);
 
   const specs = [
     { label: "Year", value: String(vehicle.year) },
@@ -80,6 +82,16 @@ export default async function VehicleDetailPage({ params }: PageProps) {
             <StatusBadge status={vehicle.status} />
             <h1 className="mt-4 font-display text-3xl tracking-wide text-ink-50 sm:text-4xl">{title}</h1>
             {vehicle.trim ? <p className="mt-1 text-sm text-ink-400">{vehicle.trim}</p> : null}
+            <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-ink-400">
+              <span className="inline-flex items-center gap-1.5">
+                <CalendarDays aria-hidden className="size-3.5 text-ink-500" />
+                {vehicle.year} model year
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <Gauge aria-hidden className="size-3.5 text-ink-500" />
+                {formatMileage(vehicle.mileage)}
+              </span>
+            </p>
           </div>
 
           <Card>
@@ -96,19 +108,26 @@ export default async function VehicleDetailPage({ params }: PageProps) {
                 </p>
               </div>
 
-              <div className="border-t border-graphite-700 pt-5">
+              <div className="space-y-2.5 border-t border-graphite-700 pt-5">
                 <WhatsappCta
                   whatsappNumber={settings.whatsapp_number}
-                  message={vehicleEnquiryMessage(vehicle)}
-                  label="Enquire about this vehicle"
+                  message={enquiryMessage}
+                  label="Enquire on WhatsApp"
                   size="lg"
+                  variant="whatsapp"
                   className="w-full"
                 />
-                {enquiry.href ? (
-                  <p className="mt-2 text-xs text-ink-500">
-                    Opens WhatsApp with a message naming this vehicle.
-                  </p>
-                ) : null}
+                <CallCta
+                  phoneNumber={settings.whatsapp_number}
+                  subject={title}
+                  size="lg"
+                  variant="outline"
+                  className="w-full"
+                />
+                <p className="pt-1 text-xs leading-relaxed text-ink-500">
+                  WhatsApp opens with a message naming this exact vehicle, so we can pick up the
+                  conversation with its specification and price already attached.
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -116,7 +135,7 @@ export default async function VehicleDetailPage({ params }: PageProps) {
           {vehicle.public_arrival_note ? (
             <Card>
               <CardHeader className="flex items-center gap-2">
-                <span aria-hidden className="size-4 text-gold-400" />
+                <ClipboardList aria-hidden className="size-4 text-gold-400" />
                 <CardTitle className="text-sm">Arrival note</CardTitle>
               </CardHeader>
               <CardContent>
@@ -153,7 +172,7 @@ export default async function VehicleDetailPage({ params }: PageProps) {
           <ul className="mt-6 grid gap-3 sm:grid-cols-2">
             {vehicle.features.map((feature) => (
               <li key={feature} className="flex items-start gap-2.5 text-sm text-ink-300">
-                <span aria-hidden className="mt-0.5 size-4 shrink-0 text-gold-400">✓</span>
+                <Check aria-hidden className="mt-0.5 size-4 shrink-0 text-gold-400" />
                 {feature}
               </li>
             ))}

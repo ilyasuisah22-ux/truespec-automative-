@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Oswald } from "next/font/google";
 import { Toaster } from "sonner";
+import { ThemeInitScript } from "@/components/site/theme-toggle";
 import "./globals.css";
 
 const inter = Inter({
@@ -30,22 +31,39 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
+/**
+ * The browser chrome colours match the DARK palette. They live here rather than
+ * following the runtime theme because Next renders them into static metadata;
+ * the light theme is a client-side palette swap and the difference is a
+ * progressive enhancement, not a correctness issue.
+ */
+export const viewport: Viewport = {
+  themeColor: "#0b0d0f",
+  colorScheme: "dark light",
+};
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${oswald.variable}`}>
-      <body className="min-h-dvh bg-graphite-950 font-sans text-ink-100 antialiased">
+    // `suppressHydrationWarning` is required because the inline script below
+    // mutates <html> (class + color-scheme) before React hydrates.
+    <html lang="en" className={`${inter.variable} ${oswald.variable}`} suppressHydrationWarning>
+      <head>
+        <ThemeInitScript />
+      </head>
+      <body className="min-h-dvh bg-background font-sans text-ink-100 antialiased">
         <a href="#main" className="skip-link">
           Skip to main content
         </a>
         {children}
         <Toaster
-          theme="dark"
           position="top-right"
+          // Colours come from the active theme's palette so toasts stay legible
+          // in both the dark and light showroom treatments.
           toastOptions={{
             style: {
-              background: "#171b21",
-              border: "1px solid #333a46",
-              color: "#eceef1",
+              background: "var(--color-graphite-850)",
+              border: "1px solid var(--color-graphite-700)",
+              color: "var(--color-ink-100)",
             },
           }}
         />

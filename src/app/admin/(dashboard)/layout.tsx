@@ -34,7 +34,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     }
     if (error instanceof UnauthorizedError) {
       return (
-        <div className="flex min-h-dvh items-center justify-center px-4 py-16">
+        <div className="theme-force-dark flex min-h-dvh items-center justify-center px-4 py-16">
           <div className="w-full max-w-md rounded-lg border border-danger/40 bg-graphite-900 p-6">
             <Alert tone="error" title="Not authorised">
               <p className="mb-4">
@@ -63,12 +63,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const demo = isDemoMode();
 
   return (
-    <div className="flex min-h-dvh flex-col bg-graphite-950">
+    // `theme-force-dark` keeps the owner dashboard on the dark palette even if
+    // the visitor has chosen the light showroom theme (see globals.css).
+    <div className="theme-force-dark flex min-h-dvh flex-col bg-graphite-950">
       <header className="border-b border-graphite-800 bg-graphite-900">
         <div className="container-page flex flex-wrap items-center justify-between gap-4 py-4">
           <div className="flex items-center gap-4">
             <Link href="/admin" aria-label="Dashboard home">
-              <BrandMark />
+              <BrandMark surface="dark" />
             </Link>
             <span className="hidden h-8 w-px bg-graphite-700 sm:block" />
             <span className="hidden text-xs uppercase tracking-[0.24em] text-ink-500 sm:block">

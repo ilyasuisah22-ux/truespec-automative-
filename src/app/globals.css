@@ -48,6 +48,19 @@
   --color-background: #0b0d0f;
   --color-foreground: #f7f8f9;
 
+  /* --- Theme-aware action colours -----------------------------------------
+     `accent` is the FILLED primary action. It is metallic gold in the dark
+     showroom theme and TrueSpec black in the light theme, so the primary
+     button always keeps AA contrast while still reading as "brand".
+     `on-whatsapp` and `scrim` deliberately never change: WhatsApp green is
+     always paired with near-black text, and photographic overlays must stay
+     dark in both themes so text over imagery stays legible. */
+  --color-accent: #d9a94a;
+  --color-accent-hover: #e3c06d;
+  --color-on-accent: #0b0d0f;
+  --color-on-whatsapp: #06230f;
+  --color-scrim: #0b0d0f;
+
   /* --- Radii --- */
   --radius-sm: 0.25rem;
   --radius-md: 0.375rem;
@@ -79,6 +92,128 @@
   --shadow-gold-glow: 0 0 30px rgba(217, 169, 74, 0.25);
 }
 
+/* ==========================================================================
+   LIGHT SHOWROOM THEME — opt-in via `<html class="light">`
+
+   The dark graphite/gold palette declared above is the default brand
+   expression. When a visitor chooses the light theme, `<html>` receives a
+   `light` class and the SAME palette custom properties are re-pointed at a
+   light equivalent. Because every Tailwind colour utility compiles down to
+   `var(--color-*)`, the whole showroom re-themes without renaming a single
+   component class.
+
+   These rules are intentionally unlayered: unlayered declarations outrank
+   Tailwind's `@layer theme` output, so they reliably win over the `:root`
+   defaults without needing `!important`.
+   ========================================================================== */
+.light {
+  color-scheme: light;
+
+  /* Surfaces: paper white with cool grey separation steps (inverted scale) */
+  --color-graphite-950: #ffffff;
+  --color-graphite-900: #f8f9fb;
+  --color-graphite-850: #f1f3f6;
+  --color-graphite-800: #e7eaf0;
+  --color-graphite-700: #d8dde5;
+  --color-graphite-600: #bfc6d0;
+  --color-graphite-500: #98a1ae;
+
+  /* Text: graphite ink (inverted scale) */
+  --color-ink-50: #0a0c0f;
+  --color-ink-100: #16191f;
+  --color-ink-200: #262c35;
+  --color-ink-300: #3b434e;
+  --color-ink-400: #57606d;
+  --color-ink-500: #6c7683;
+
+  /* Gold becomes a printed metallic accent on paper: deepened so gold TEXT
+     still clears AA contrast against white surfaces. */
+  --color-gold-100: #f4e6c4;
+  --color-gold-200: #a3751d;
+  --color-gold-300: #93681a;
+  --color-gold-400: #855d17;
+  --color-gold-500: #6f4d13;
+  --color-gold-600: #5c3f10;
+
+  /* The filled primary action flips to TrueSpec black, matching the official
+     logo lockup that is also used in this theme. */
+  --color-accent: #16191f;
+  --color-accent-hover: #2b323c;
+  --color-on-accent: #ffffff;
+
+  --color-background: #ffffff;
+  --color-foreground: #0a0c0f;
+
+  /* Softer, non-glowing elevation on light surfaces */
+  --shadow-elevation-1: 0 1px 2px rgba(16, 20, 26, 0.06), 0 1px 3px rgba(16, 20, 26, 0.08);
+  --shadow-elevation-2: 0 2px 4px rgba(16, 20, 26, 0.06), 0 4px 10px rgba(16, 20, 26, 0.08);
+  --shadow-elevation-3: 0 6px 14px rgba(16, 20, 26, 0.08), 0 2px 6px rgba(16, 20, 26, 0.06);
+  --shadow-elevation-4: 0 16px 32px rgba(16, 20, 26, 0.12), 0 6px 12px rgba(16, 20, 26, 0.06);
+  --shadow-gold-glow: 0 0 24px rgba(133, 93, 23, 0.18);
+}
+
+/* --------------------------------------------------------------------------
+   The owner dashboard is an internal, always-dark tool. Wrapping its shell in
+   `.theme-force-dark` re-declares the dark palette, so a visitor's light
+   preference can never bleed into the admin screens.
+   -------------------------------------------------------------------------- */
+.light .theme-force-dark {
+  color-scheme: dark;
+
+  --color-graphite-950: #0b0d0f;
+  --color-graphite-900: #12151a;
+  --color-graphite-850: #171b21;
+  --color-graphite-800: #1d222a;
+  --color-graphite-700: #262c36;
+  --color-graphite-600: #333a46;
+  --color-graphite-500: #4a5361;
+
+  --color-ink-50: #f7f8f9;
+  --color-ink-100: #eceef1;
+  --color-ink-200: #d6dae0;
+  --color-ink-300: #b3bac4;
+  --color-ink-400: #8b949f;
+  --color-ink-500: #6b7480;
+
+  --color-gold-100: #f7ecd0;
+  --color-gold-200: #eed9a3;
+  --color-gold-300: #e3c06d;
+  --color-gold-400: #d9a94a;
+  --color-gold-500: #c8932f;
+  --color-gold-600: #a97424;
+
+  --color-accent: #d9a94a;
+  --color-accent-hover: #e3c06d;
+  --color-on-accent: #0b0d0f;
+
+  --color-background: #0b0d0f;
+  --color-foreground: #f7f8f9;
+
+  --shadow-elevation-1: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-elevation-2: 0 4px 6px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-elevation-3: 0 10px 15px rgba(0, 0, 0, 0.3), 0 4px 6px rgba(0, 0, 0, 0.15);
+  --shadow-elevation-4: 0 20px 25px rgba(0, 0, 0, 0.4), 0 10px 10px rgba(0, 0, 0, 0.15);
+  --shadow-gold-glow: 0 0 30px rgba(217, 169, 74, 0.25);
+}
+
+/* Theme-only visibility. Used by the header/footer logo lockups, which ship as
+   separate white-ink and black-ink PNGs rather than one recolourable SVG. */
+.theme-dark-only {
+  display: block;
+}
+
+.theme-light-only {
+  display: none;
+}
+
+.light .theme-dark-only {
+  display: none;
+}
+
+.light .theme-light-only {
+  display: block;
+}
+
 @layer base {
   * {
     border-color: var(--color-graphite-700);
@@ -87,13 +222,16 @@
   html {
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
+    color-scheme: dark;
+    background-color: var(--color-background);
   }
 
   body {
-    background-color: var(--color-graphite-950);
+    background-color: var(--color-background);
     color: var(--color-ink-100);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    transition: background-color var(--transition-normal), color var(--transition-normal);
   }
 
   h1,
@@ -148,8 +286,8 @@
   top: 0;
   z-index: 100;
   padding: 0.75rem 1rem;
-  background: var(--color-gold-400);
-  color: var(--color-graphite-950);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
   font-weight: 600;
 }
 
@@ -197,15 +335,72 @@
   transition: all var(--transition-fast);
 }
 
-/* Hero gradient overlay */
+/* Hero gradient overlay — fades imagery into the active theme's page surface.
+ *
+ * The copy column spans most of the viewport on phones, so the base treatment
+ * is a strong bottom-up wash that makes the text background near-opaque. From
+ * 768px the copy column stops around 40% of the width and the wash becomes a
+ * directional left-to-right fade — the composition the "photography bleeding in
+ * from the right" look depends on. */
 @utility hero-gradient {
   background: linear-gradient(
-    90deg,
-    var(--color-graphite-950) 0%,
-    var(--color-graphite-950) 40%,
-    color-mix(in srgb, var(--color-graphite-950) 60%, transparent) 70%,
+    to top,
+    color-mix(in srgb, var(--color-background) 95%, transparent) 0%,
+    color-mix(in srgb, var(--color-background) 90%, transparent) 55%,
+    color-mix(in srgb, var(--color-background) 55%, transparent) 100%
+  );
+}
+
+@media (min-width: 768px) {
+  .hero-gradient {
+    background: linear-gradient(
+      90deg,
+      var(--color-background) 0%,
+      var(--color-background) 40%,
+      color-mix(in srgb, var(--color-background) 60%, transparent) 70%,
+      transparent 100%
+    );
+  }
+}
+
+/* Scrim gradient for text laid over photography — always dark, both themes */
+@utility scrim-gradient {
+  background: linear-gradient(
+    to top,
+    var(--color-scrim) 0%,
+    color-mix(in srgb, var(--color-scrim) 70%, transparent) 45%,
     transparent 100%
   );
+}
+
+/* Cinematic hero motion: a very slow drift/zoom that keeps stills feeling alive */
+@utility ken-burns {
+  animation: ken-burns 18s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+@keyframes ken-burns {
+  from {
+    transform: scale(1.03) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.13) translate3d(-1%, -1.5%, 0);
+  }
+}
+
+@keyframes hero-copy-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Applied to each hero slide's copy block so text arrives with the image */
+@utility hero-copy-rise {
+  animation: hero-copy-rise 900ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
 
 /* Gold accent line */
@@ -223,6 +418,30 @@
   border-color: var(--color-gold-400);
   box-shadow: var(--shadow-elevation-3);
   transform: translateY(-2px);
+}
+
+/* Inventory card hover: a restrained lift plus a gold border, and a slow zoom
+   on the photograph itself (`.vehicle-card-image` supplies the transition). */
+@utility vehicle-card-hover {
+  transition: border-color var(--transition-normal), box-shadow var(--transition-normal),
+    transform var(--transition-normal);
+}
+
+.vehicle-card-hover:hover {
+  border-color: var(--color-gold-400);
+  box-shadow: var(--shadow-elevation-3);
+  transform: translateY(-3px);
+}
+
+.vehicle-card-hover:hover .vehicle-card-image {
+  transform: scale(1.05);
+}
+
+/* Hairline gold rule used to separate editorial sections */
+@utility premium-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-gold-400), transparent);
+  opacity: 0.35;
 }
 
 /* Mobile-first responsive typography */
@@ -256,8 +475,8 @@
 /* Premium button states */
 @utility btn-premium-primary {
   @apply inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all duration-200;
-  @apply bg-gold-400 text-graphite-950 hover:bg-gold-300 active:bg-gold-500;
-  @apply hover:shadow-lg hover:shadow-gold-400/30;
+  @apply bg-accent text-on-accent hover:bg-accent-hover active:bg-accent;
+  @apply hover:shadow-lg hover:shadow-accent/30;
 }
 
 @utility btn-premium-outline {

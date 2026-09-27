@@ -5,9 +5,12 @@
 -- Every vehicle, price, mileage and cost below is invented for the audition
 -- demo. Remove before production: supabase/scripts/remove_demo_data.sql
 --
--- Image paths point at the generated placeholder artwork shipped in /public/demo,
--- which is labelled "DEMONSTRATION IMAGE". Replace with real photography via the
--- admin upload flow.
+-- Image paths point at the sample photography shipped in /public/demo/vehicles,
+-- which is served as static public assets (one exterior and one interior frame
+-- per vehicle). Replace with real stock photographs via the admin upload flow.
+--
+-- These slugs/ids mirror src/lib/demo/demo-data.ts exactly, so a database-seeded
+-- deployment and the in-repo DEMO_DATA fallback describe the same inventory.
 -- ============================================================================
 
 insert into public.vehicles
@@ -16,75 +19,126 @@ insert into public.vehicles
 values
   (
     'd0000000-0000-4000-8000-000000000001',
-    'demo-mercedes-benz-ml-350-2015',
-    'Mercedes-Benz', 'ML 350', '4MATIC', 2015,
-    'Obsidian Black', 'Black Leather', 118000,
-    array['Panoramic sunroof','Reverse camera','Heated front seats','Power tailgate','19-inch alloy wheels'],
-    'available', 2450000000,
-    'Demonstration record. Cleared and ready for inspection in Lagos.'
+    'demo-mercedes-benz-gle-450-2024',
+    'Mercedes-Benz', 'GLE 450', '4MATIC AMG Line', 2024,
+    'Obsidian Black Metallic', 'Macchiato Beige / Black Nappa', 6200,
+    array['Panoramic sliding sunroof','Burmester Surround Sound system','Airmatic air suspension with adaptive damping','Active Distance Assist DISTRONIC','Multibeam LED intelligent lighting','21-inch AMG multi-spoke alloy wheels'],
+    'available', 7100000000,
+    'DEMO RECORD - Representative inventory. Cleared and ready for inspection at Victoria Island showroom.'
   ),
   (
     'd0000000-0000-4000-8000-000000000002',
-    'demo-bmw-x5-xdrive40i-2019',
-    'BMW', 'X5', 'xDrive40i', 2019,
-    'Mineral White', 'Cognac Leather', 64000,
-    array['Harman Kardon audio','Head-up display','Surround-view camera','M Sport package','20-inch alloy wheels'],
-    'available', 4800000000,
-    null
+    'demo-bmw-x5-xdrive40i-2023',
+    'BMW', 'X5', 'xDrive40i M Sport', 2023,
+    'Mineral White Metallic', 'Tartufo Extended Merino Leather', 18500,
+    array['M Sport aerodynamic package','Sky Lounge panoramic glass roof','Harman Kardon premium sound','Live Cockpit Professional with curved display','BMW Laserlight system','22-inch M double-spoke bi-color wheels'],
+    'available', 5400000000,
+    'DEMO RECORD - Representative inventory. Inspected before shipment; Lagos customs documentation verified.'
   ),
   (
     'd0000000-0000-4000-8000-000000000003',
-    'demo-toyota-land-cruiser-2021',
-    'Toyota', 'Land Cruiser', 'VXR', 2021,
-    'Pearl White', 'Beige Leather', 41000,
-    array['Cool box','Rear entertainment screens','Multi-terrain select','360-degree camera','Roof rails'],
-    'on_order', 9200000000,
-    'Demonstration record. Currently in transit to Nigeria.'
+    'demo-lexus-rx-350-2024',
+    'Lexus', 'RX 350', 'F SPORT Handling AWD', 2024,
+    'Sonic Titanium', 'Circuit Red NuLuxe', 8900,
+    array['Lexus Safety System+ 3.0','Mark Levinson 21-speaker PurePlay sound','14-inch touchscreen multimedia display','Adaptive Variable Suspension (AVS)','Color head-up display','Triple-beam ultra-compact LED headlamps'],
+    'available', 6000000000,
+    null
   ),
   (
     'd0000000-0000-4000-8000-000000000004',
-    'demo-mercedes-benz-g63-amg-2018',
-    'Mercedes-Benz', 'G-Class', 'G63 AMG', 2018,
-    'Designo Night Black', 'Red Pepper Nappa', 52000,
-    array['AMG performance exhaust','Carbon interior trim','Burmester sound','Adaptive damping','22-inch AMG wheels'],
-    'landed', 11500000000,
-    'Demonstration record. Landed and cleared earlier this year.'
+    'demo-range-rover-sport-dynamic-se-2023',
+    'Range Rover', 'Sport', 'Dynamic SE P400', 2023,
+    'Santorini Black', 'Ebony / Light Cloud Semi-Aniline', 14200,
+    array['Dynamic Air Suspension with switchable volume','Meridian 3D surround sound system','Pixel LED headlights with signature DRL','ClearSight interior rear view mirror','Deployable side access steps','23-inch Style 5135 gloss black wheels'],
+    'available', 10400000000,
+    'DEMO RECORD - Representative inventory. Direct UK spec, fully duty-paid with transparent doorstep pricing.'
+  ),
+  (
+    'd0000000-0000-4000-8000-000000000005',
+    'demo-toyota-land-cruiser-vxr-2024',
+    'Toyota', 'Land Cruiser', 'LC300 VXR Twin-Turbo V6', 2024,
+    'Precious White Pearl', 'Neutral Beige Semi-Aniline Leather', 4300,
+    array['Electronic Kinetic Dynamic Suspension (E-KDSS)','JBL 14-speaker premium reference audio','Rear dual 11.6-inch entertainment displays','Multi-terrain monitor with 3D under-floor view','Integrated center console cool box','Adaptive high-beam system'],
+    'on_order', 14500000000,
+    'DEMO RECORD - Representative inventory. Currently in transit; tracking updates provided through vessel arrival.'
+  ),
+  (
+    'd0000000-0000-4000-8000-000000000006',
+    'demo-mercedes-benz-c300-2022',
+    'Mercedes-Benz', 'C300', 'AMG Line Premium Plus', 2022,
+    'Mojave Silver Metallic', 'Sienna Brown Leather', 28400,
+    array['AMG Line body styling and sport brakes','Panoramic tilting/sliding sunroof','Burmester 3D sound system','11.9-inch central portrait multimedia touchscreen','64-color ambient lighting system','19-inch AMG multi-spoke bi-color alloys'],
+    'on_order', 3650000000,
+    'DEMO RECORD - Representative inventory. Allocated and currently undergoing ocean transit to Lagos.'
+  ),
+  (
+    'd0000000-0000-4000-8000-000000000007',
+    'demo-porsche-cayenne-2023',
+    'Porsche', 'Cayenne', 'Base AWD Sport Chrono', 2023,
+    'Crayon / Chalk Grey', 'Black / Bordeaux Red Two-Tone', 16100,
+    array['Sport Chrono Package with mode switch','Adaptive air suspension with PASM','Panoramic roof system','BOSE Surround Sound system','LED-Matrix Design headlights with PDLS+','21-inch RS Spyder Design wheels'],
+    'landed', 9100000000,
+    'DEMO RECORD - Representative inventory. Cleared and delivered to client specification earlier this quarter.'
+  ),
+  (
+    'd0000000-0000-4000-8000-000000000008',
+    'demo-bmw-740i-2024',
+    'BMW', '7 Series', '740i M Sport', 2024,
+    'Carbon Black Metallic', 'Smoke White BMW Individual Merino', 5100,
+    array['31.3-inch BMW Theatre Screen in rear cabin','Bowers & Wilkins Diamond surround sound','Sky Lounge panoramic glass roof with LED patterns','Automatic doors with soft-close function','BMW Interaction Bar with ambient backlighting','Executive lounge seating with massage function'],
+    'landed', 12200000000,
+    'DEMO RECORD - Representative inventory. Sourced, imported, inspected and delivered through our flagship white-glove service.'
   )
 on conflict (id) do nothing;
 
 
 -- ---------------------------------------------------------------------------
 -- DEMO financial records (invented figures — see header warning)
--- Note vehicle 3 intentionally has NULL full_tank_cost_kobo so the dashboard
--- demonstrates the "incomplete cost" state.
+-- Note vehicle 5 (Land Cruiser) intentionally has NULL full_tank_cost_kobo so
+-- the dashboard demonstrates the "incomplete cost" state.
 -- ---------------------------------------------------------------------------
 insert into public.vehicle_finances
   (vehicle_id, purchase_price_kobo, usa_trucking_cost_kobo, shipping_cost_kobo,
    clearing_cost_kobo, nigeria_trucking_cost_kobo, full_tank_cost_kobo,
    internal_notes, sourcing_contact)
 values
-  ('d0000000-0000-4000-8000-000000000001', 1350000000, 32000000, 315000000, 240000000, 45000000, 11000000,
-   'DEMO: auction lot, minor bumper scuff noted on inspection.', 'DEMO: Copart agent (placeholder)'),
-  ('d0000000-0000-4000-8000-000000000002', 3100000000, 38000000, 405000000, 310000000, 50000000, 11000000,
-   'DEMO: single-owner lease return.', 'DEMO: Manheim buyer (placeholder)'),
-  ('d0000000-0000-4000-8000-000000000003', 6300000000, 42000000, 560000000, 620000000, 60000000, null,
-   'DEMO: full-tank cost not yet recorded for this unit.', 'DEMO: dealer trade-in (placeholder)'),
-  ('d0000000-0000-4000-8000-000000000004', 7800000000, 45000000, 615000000, 740000000, 65000000, 13000000,
-   'DEMO: arrived with aftermarket exhaust, verified.', 'DEMO: private seller (placeholder)')
+  ('d0000000-0000-4000-8000-000000000001', 5200000000, 45000000, 480000000, 520000000, 55000000, 12000000,
+   'DEMO: verified dealer trade-in, comprehensive pre-purchase inspection passed.', 'DEMO: Manheim Luxury Division (placeholder)'),
+  ('d0000000-0000-4000-8000-000000000002', 3900000000, 40000000, 420000000, 460000000, 50000000, 11000000,
+   'DEMO: single-owner corporate lease return, spotless maintenance logs.', 'DEMO: BMW Financial Services remarketing (placeholder)'),
+  ('d0000000-0000-4000-8000-000000000003', 4400000000, 42000000, 430000000, 480000000, 50000000, 11000000,
+   'DEMO: pristine condition, original paint verified.', 'DEMO: Texas wholesale partner (placeholder)'),
+  ('d0000000-0000-4000-8000-000000000004', 7800000000, 48000000, 540000000, 680000000, 60000000, 13000000,
+   'DEMO: dynamic spec with full deployable steps and factory warranty records.', 'DEMO: JLR Certified remarketing (placeholder)'),
+  ('d0000000-0000-4000-8000-000000000005', 11000000000, 55000000, 680000000, 850000000, 70000000, null,
+   'DEMO: full-tank cost pending final delivery documentation.', 'DEMO: Middle East / Gulf export partner (placeholder)'),
+  ('d0000000-0000-4000-8000-000000000006', 2600000000, 35000000, 340000000, 360000000, 45000000, 10000000,
+   'DEMO: AMG Line styling package, low mileage certified.', 'DEMO: Florida dealership trade (placeholder)'),
+  ('d0000000-0000-4000-8000-000000000007', 6800000000, 46000000, 520000000, 640000000, 60000000, 13000000,
+   'DEMO: Porsche Sport Chrono pack with adaptive air suspension.', 'DEMO: Porsche Centre West consignment (placeholder)'),
+  ('d0000000-0000-4000-8000-000000000008', 9200000000, 50000000, 600000000, 760000000, 65000000, 14000000,
+   'DEMO: rear executive lounge theatre screen specification.', 'DEMO: Munich direct allocation (placeholder)')
 on conflict (vehicle_id) do nothing;
 
 -- ---------------------------------------------------------------------------
--- DEMO image records pointing at generated placeholder artwork
+-- DEMO image records pointing at the sample photography in /public/demo/vehicles
 -- ---------------------------------------------------------------------------
 insert into public.vehicle_images (vehicle_id, storage_path, display_order, is_cover)
-select v.id, '/demo/' || v.img_key || '-' || k.variant || '.svg', k.ord, (k.ord = 0)
+select v.id,
+       '/demo/vehicles/' || v.img_key || '-' || k.variant || '.jpg',
+       k.ord,
+       (k.ord = 0)
 from (values
-  ('d0000000-0000-4000-8000-000000000001'::uuid, 'ml350'),
+  ('d0000000-0000-4000-8000-000000000001'::uuid, 'mercedes-gle'),
   ('d0000000-0000-4000-8000-000000000002'::uuid, 'bmw-x5'),
-  ('d0000000-0000-4000-8000-000000000003'::uuid, 'land-cruiser'),
-  ('d0000000-0000-4000-8000-000000000004'::uuid, 'g-class')
+  ('d0000000-0000-4000-8000-000000000003'::uuid, 'lexus-rx'),
+  ('d0000000-0000-4000-8000-000000000004'::uuid, 'range-rover-sport'),
+  ('d0000000-0000-4000-8000-000000000005'::uuid, 'land-cruiser'),
+  ('d0000000-0000-4000-8000-000000000006'::uuid, 'mercedes-c300'),
+  ('d0000000-0000-4000-8000-000000000007'::uuid, 'porsche-cayenne'),
+  ('d0000000-0000-4000-8000-000000000008'::uuid, 'bmw-7-series')
 ) as v(id, img_key)
-cross join (values ('exterior', 0), ('interior', 1), ('detail', 2)) as k(variant, ord)
+cross join (values ('exterior', 0), ('interior', 1)) as k(variant, ord)
 where not exists (
   select 1 from public.vehicle_images vi where vi.vehicle_id = v.id
 );

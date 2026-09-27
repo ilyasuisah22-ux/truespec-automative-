@@ -83,7 +83,7 @@ export function VehicleGallery({
         />
 
         {/* Image gradient overlay for depth */}
-        <div className="absolute inset-0 bg-gradient-to-t from-graphite-950/20 via-transparent to-transparent pointer-events-none" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-scrim/20 via-transparent to-transparent" />
 
         {total > 1 ? (
           <>

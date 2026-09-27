@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BrandMark } from "@/components/site/brand-mark";
+import { ThemeToggle } from "@/components/site/theme-toggle";
 import { WhatsappCta } from "@/components/site/whatsapp-cta";
 import { DEFAULT_GENERAL_MESSAGE } from "@/lib/whatsapp";
 
@@ -56,7 +57,7 @@ export function SiteHeader({ whatsappNumber }: { whatsappNumber: string }) {
           className="rounded-sm flex-shrink-0"
           aria-label="TrueSpec Automotive — go to homepage"
         >
-          <BrandMark size="lg" />
+          <BrandMark size="lg" priority />
         </Link>
 
         <nav aria-label="Main" className="hidden items-center gap-0.5 lg:flex">
@@ -80,7 +81,9 @@ export function SiteHeader({ whatsappNumber }: { whatsappNumber: string }) {
           })}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <ThemeToggle />
+
           <div className="hidden sm:block">
             <WhatsappCta
               whatsappNumber={whatsappNumber}

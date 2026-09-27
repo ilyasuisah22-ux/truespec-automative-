@@ -3,18 +3,31 @@ import Link from "next/link";
 import { ArrowRight, Gauge, Palette } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { StatusBadge } from "@/components/site/status-badge";
+import { WhatsappCta } from "@/components/site/whatsapp-cta";
+import { CallCta } from "@/components/site/call-cta";
 import { coverImage, type PublicVehicle } from "@/lib/inventory";
 import { displayCustomerPrice, formatMileage, vehicleTitle } from "@/lib/inventory";
 import { resolveImageUrl } from "@/lib/images";
+import { vehicleEnquiryMessage } from "@/lib/whatsapp";
 
-/** Public inventory card. Shows ONLY customer-facing fields — never financial data. */
-export function VehicleCard({ vehicle }: { vehicle: PublicVehicle }) {
+/**
+ * Public inventory card. Shows ONLY customer-facing fields — never financial
+ * data. Enquiry actions reuse the configured business number and pre-fill the
+ * WhatsApp message with the exact vehicle description.
+ */
+export function VehicleCard({
+  vehicle,
+  whatsappNumber,
+}: {
+  vehicle: PublicVehicle;
+  whatsappNumber: string;
+}) {
   const cover = coverImage(vehicle);
   const href = `/inventory/${vehicle.slug}`;
   const title = vehicleTitle(vehicle);
 
   return (
-    <Card className="vehicle-card-hover overflow-hidden group">
+    <Card className="vehicle-card-hover flex h-full flex-col overflow-hidden group">
       <Link
         href={href}
         className="block focus-visible:outline-offset-4"
@@ -36,7 +49,7 @@ export function VehicleCard({ vehicle }: { vehicle: PublicVehicle }) {
             </div>
           )}
 
-          <div className="absolute inset-0 bg-gradient-to-t from-graphite-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-t from-scrim/80 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
           <div className="absolute left-3 top-3">
             <StatusBadge status={vehicle.status} />
@@ -44,9 +57,9 @@ export function VehicleCard({ vehicle }: { vehicle: PublicVehicle }) {
         </div>
       </Link>
 
-      <div className="flex flex-col gap-4 p-5">
+      <div className="flex flex-1 flex-col gap-4 p-5">
         <div>
-          <p className="font-display text-lg tracking-wide text-ink-50 group-hover:text-gold-200 transition-colors">
+          <p className="font-display text-lg tracking-wide text-ink-50 transition-colors group-hover:text-gold-300">
             <Link href={href}>
               {vehicle.brand} {vehicle.model}
             </Link>
@@ -67,14 +80,14 @@ export function VehicleCard({ vehicle }: { vehicle: PublicVehicle }) {
             <dt className="sr-only">Exterior colour</dt>
             <dd className="truncate">{vehicle.exterior_color}</dd>
           </div>
-          <div className="flex items-center gap-1.5 col-span-2">
+          <div className="col-span-2 flex items-center gap-1.5">
             <Palette aria-hidden className="size-3.5 text-ink-500" />
             <dt className="sr-only">Interior</dt>
             <dd className="truncate">{vehicle.interior_color}</dd>
           </div>
         </dl>
 
-        <div className="flex items-end justify-between border-t border-graphite-700/50 pt-4">
+        <div className="mt-auto flex items-end justify-between border-t border-graphite-700/50 pt-4">
           <div>
             <p className="text-[0.65rem] uppercase tracking-widest text-ink-500">
               Doorstep price
@@ -83,12 +96,41 @@ export function VehicleCard({ vehicle }: { vehicle: PublicVehicle }) {
               {displayCustomerPrice(vehicle.customer_price_kobo)}
             </p>
           </div>
-          <span className="inline-flex items-center gap-1 text-xs font-medium text-ink-300 group-hover:text-gold-200 group-hover:underline">
+          <Link
+            href={href}
+            aria-label={`View details for ${title}`}
+            className="inline-flex items-center gap-1 text-xs font-medium text-ink-300 transition-colors hover:text-gold-300"
+          >
             View details
-            <ArrowRight aria-hidden className="size-3.5 transition-transform group-hover:translate-x-0.5" />
-          </span>
+            <ArrowRight aria-hidden className="size-3.5" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 border-t border-graphite-700/50 pt-4">
+          <div>
+            <WhatsappCta
+              whatsappNumber={whatsappNumber}
+              message={vehicleEnquiryMessage(vehicle)}
+              label="WhatsApp"
+              aria-label={`Enquire on WhatsApp about the ${title}`}
+              size="sm"
+              variant="whatsapp"
+              className="w-full"
+            />
+          </div>
+          <div>
+            <CallCta
+              phoneNumber={whatsappNumber}
+              subject={title}
+              label="Call"
+              size="sm"
+              variant="outline"
+              className="w-full"
+            />
+          </div>
         </div>
       </div>
     </Card>
   );
 }
+

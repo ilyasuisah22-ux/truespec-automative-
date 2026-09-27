@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { rowsOf, rowOf } from "@/lib/supabase/query";
 import {
@@ -130,8 +131,12 @@ export async function getPublicVehicleSlugs(): Promise<string[]> {
  * Reads ONLY the two explicitly public settings columns. The private
  * `default_full_tank_cost_kobo` column is not selected and not granted to
  * anonymous database clients.
+ *
+ * Wrapped in React's `cache()` so the many enquiry CTAs across a single page
+ * render (header, hero, footer, every vehicle card) share one database read
+ * instead of issuing a request each.
  */
-export async function getPublicSettings(): Promise<PublicSettings> {
+export const getPublicSettings = cache(async (): Promise<PublicSettings> => {
   if (isDemoMode()) return DEMO_PUBLIC_SETTINGS;
 
   const supabase = await createClient();
@@ -140,4 +145,4 @@ export async function getPublicSettings(): Promise<PublicSettings> {
   );
 
   return row ?? { whatsapp_number: "", site_tagline: "Premium vehicle sourcing and import." };
-}
+});

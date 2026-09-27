@@ -15,10 +15,10 @@ export default function AdminLoginPage() {
   const configured = isSupabaseConfigured();
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center bg-graphite-950 px-4 py-16">
+    <div className="theme-force-dark flex min-h-dvh flex-col items-center justify-center bg-graphite-950 px-4 py-16">
       <div className="w-full max-w-md">
         <div className="mb-8 flex flex-col items-center gap-3 text-center">
-          <BrandMark />
+          <BrandMark surface="dark" />
           <p className="mt-2 flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-ink-500">
             <Lock aria-hidden className="size-3.5" />
             Owner dashboard
