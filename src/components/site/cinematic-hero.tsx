@@ -21,7 +21,7 @@ export interface HeroSlide {
   featured?: string;
 }
 
-const ROTATION_MS = 6500;
+const ROTATION_MS = 7000;
 
 /*
  * `prefers-reduced-motion` is an external, media-query-backed store, so it is
@@ -127,10 +127,10 @@ export function CinematicHero({
           <div
             key={slide.src}
             aria-hidden
-            className={cn(
-              "absolute inset-0 transition-opacity duration-[1400ms] ease-out",
-              i === index ? "opacity-100" : "opacity-0"
-            )}
+              className={cn(
+                "absolute inset-0 transition-opacity duration-[1500ms] ease-out",
+                i === index ? "opacity-100" : "opacity-0"
+              )}
           >
             <Image
               src={slide.src}

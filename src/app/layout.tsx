@@ -29,6 +29,11 @@ export const metadata: Metadata = {
     "Browse TrueSpec Automotive inventory — available, on order and landed vehicles, with transparent doorstep pricing and direct WhatsApp enquiry.",
   applicationName: "TrueSpec Automotive",
   robots: { index: true, follow: true },
+  icons: {
+    icon: "/truespec-logo-gold.png",
+    shortcut: "/truespec-logo-gold.png",
+    apple: "/truespec-logo-gold.png",
+  },
 };
 
 /**

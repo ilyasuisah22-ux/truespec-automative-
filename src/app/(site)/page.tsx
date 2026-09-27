@@ -38,11 +38,19 @@ export const metadata: Metadata = {
  */
 const HERO_SLIDES: HeroSlide[] = [
   {
+    src: "/demo/vehicles/bmw-x5-exterior.jpg",
+    eyebrow: "German engineering · Verified history",
+    headline: "Drive something",
+    headlineAccent: "exceptional",
+    body: "Verified, cleared and ready for inspection in Lagos. Every unit is priced fully landed, so the figure you see is the figure you pay.",
+    featured: "BMW X5 xDrive40i M Sport",
+  },
+  {
     src: "/demo/vehicles/mercedes-gle-exterior.jpg",
     eyebrow: "Sourcing · Inspection · Import",
     headline: "Drive something",
     headlineAccent: "exceptional",
-    body: "Verified, cleared and ready for inspection in Lagos. Every unit is priced fully landed, so the figure you see is the figure you pay.",
+    body: "Direct UK and Gulf stock with documented history. We handle purchase, shipping, clearing and doorstep delivery from end to end.",
     featured: "Mercedes-Benz GLE 450",
   },
   {
@@ -50,24 +58,32 @@ const HERO_SLIDES: HeroSlide[] = [
     eyebrow: "UK · USA · Gulf sourcing",
     headline: "Drive something",
     headlineAccent: "exceptional",
-    body: "Direct UK and Gulf stock with documented history. We handle purchase, shipping, clearing and doorstep delivery from end to end.",
+    body: "Name the exact vehicle you want and we source it — inspected before purchase, photographed honestly and shipped with a written cost breakdown.",
     featured: "Range Rover Sport P400",
+  },
+  {
+    src: "/demo/vehicles/lexus-rx-exterior.jpg",
+    eyebrow: "Japanese reliability · Premium comfort",
+    headline: "Drive something",
+    headlineAccent: "exceptional",
+    body: "From allocation to keys in hand, one team owns your order. Track every milestone and receive your vehicle on a full tank.",
+    featured: "Lexus RX 350 F SPORT",
   },
   {
     src: "/demo/vehicles/porsche-cayenne-exterior.jpg",
     eyebrow: "A showroom, not a marketplace",
     headline: "Drive something",
     headlineAccent: "exceptional",
-    body: "Name the exact vehicle you want and we source it — inspected before purchase, photographed honestly and shipped with a written cost breakdown.",
+    body: "Performance SUVs with full service history. Inspected before shipping, delivered with transparent pricing.",
     featured: "Porsche Cayenne",
   },
   {
-    src: "/demo/vehicles/bmw-7-series-exterior.jpg",
-    eyebrow: "White-glove delivery",
+    src: "/demo/vehicles/land-cruiser-exterior.jpg",
+    eyebrow: "Built for Africa · Legendary durability",
     headline: "Drive something",
     headlineAccent: "exceptional",
-    body: "From allocation to keys in hand, one team owns your order. Track every milestone and receive your vehicle on a full tank.",
-    featured: "BMW 740i M Sport",
+    body: "The definitive African SUV, sourced from GCC markets with full service records and ready for Nigerian roads.",
+    featured: "Toyota Land Cruiser VXR",
   },
 ];
 
