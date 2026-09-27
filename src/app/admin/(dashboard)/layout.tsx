@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LogOut, ShieldAlert, TriangleAlert } from "lucide-react";
 import { AdminNav } from "@/components/admin/admin-nav";
+import { AdminThemeToggle } from "@/components/admin/admin-theme-toggle";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
 import { BrandMark } from "@/components/site/brand-mark";
@@ -34,7 +35,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     }
     if (error instanceof UnauthorizedError) {
       return (
-        <div className="theme-force-dark flex min-h-dvh items-center justify-center px-4 py-16">
+        <div className="flex min-h-dvh items-center justify-center bg-graphite-950 px-4 py-16">
           <div className="w-full max-w-md rounded-lg border border-danger/40 bg-graphite-900 p-6">
             <Alert tone="error" title="Not authorised">
               <p className="mb-4">
@@ -68,29 +69,36 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const prototypeFleet = !demo && (await isShowroomUsingDemoInventory());
 
   return (
-    // `theme-force-dark` keeps the owner dashboard on the dark palette even if
-    // the visitor has chosen the light showroom theme (see globals.css).
-    <div className="theme-force-dark flex min-h-dvh flex-col bg-graphite-950">
-      <header className="border-b border-graphite-800 bg-graphite-900">
-        <div className="container-page flex flex-wrap items-center justify-between gap-4 py-4">
-          <div className="flex items-center gap-4">
-            <Link href="/admin" aria-label="Dashboard home">
-              <BrandMark surface="dark" />
+    // The dashboard uses the SHARED palette tokens, so it renders correctly in
+    // both the dark operations theme and the light one. It is deliberately NOT
+    // wrapped in `theme-force-dark` any more: the owner chooses via the header
+    // toggle, and that choice is stored separately from the public showroom's
+    // preference (see lib/theme.ts) so the two never interfere.
+    <div className="flex min-h-dvh flex-col bg-graphite-950">
+      <header className="sticky top-0 z-40 border-b border-graphite-800 bg-graphite-900/95 backdrop-blur supports-[backdrop-filter]:bg-graphite-900/85">
+        <div className="container-page flex h-16 items-center justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+            {/* `adaptive` ships both official ink variants and swaps them with CSS,
+                so the black lockup shows on the light dashboard header. Pinning
+                the white lockup here would be invisible in light mode. */}
+            <Link href="/admin" aria-label="Dashboard home" className="shrink-0 rounded-sm">
+              <BrandMark surface="adaptive" />
             </Link>
-            <span className="hidden h-8 w-px bg-graphite-700 sm:block" />
-            <span className="hidden text-xs uppercase tracking-[0.24em] text-ink-500 sm:block">
-              Owner dashboard
+            <span aria-hidden className="hidden h-7 w-px bg-graphite-700 sm:block" />
+            <span className="hidden truncate text-xs uppercase tracking-[0.22em] text-ink-400 sm:block">
+              Operations
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className="hidden text-xs text-ink-400 sm:block">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span className="hidden max-w-[16ch] truncate text-xs text-ink-400 lg:block">
               {session.user.email}
             </span>
+            <AdminThemeToggle />
             <form action={signOutAction}>
               <Button type="submit" variant="outline" size="sm">
                 <LogOut aria-hidden />
-                Sign out
+                <span className="hidden sm:inline">Sign out</span>
               </Button>
             </form>
           </div>

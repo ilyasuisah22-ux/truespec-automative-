@@ -14,8 +14,9 @@ import type { PublicVehicle } from "@/lib/inventory";
  *     structurally incapable of leaking financial data because no financial
  *     field exists here.
  *  2. Every price, mileage and status below is invented for demonstration.
- *  3. Images are locally-served luxury vehicle photographs in /public/demo/vehicles/.
- *     They are illustrative sample photography, not photographs of real stock.
+ *  3. These records deliberately carry NO imagery. The photographs that used to
+ *     sit in /public/demo/vehicles/ did not depict these vehicles and were
+ *     withdrawn — see `NO_IMAGERY` below.
  *
  * Removal before production: `supabase/scripts/remove_demo_data.sql`
  * plus setting DEMO_DATA=false (see README "Removing demo data").
@@ -32,22 +33,29 @@ export const DEMO_VEHICLE_IDS = {
   bmw7Series: "d0000000-0000-4000-8000-000000000008",
 } as const;
 
-function vehicleImages(slugPrefix: string, vehicleId: string) {
-  return [
-    {
-      id: `${vehicleId}-img-1`,
-      storage_path: `/demo/vehicles/${slugPrefix}-exterior.jpg`,
-      display_order: 0,
-      is_cover: true,
-    },
-    {
-      id: `${vehicleId}-img-2`,
-      storage_path: `/demo/vehicles/${slugPrefix}-interior.jpg`,
-      display_order: 1,
-      is_cover: false,
-    },
-  ];
-}
+/**
+ * Demo vehicles deliberately carry NO imagery.
+ *
+ * The JPEGs that used to live in `public/demo/vehicles/` were named after this
+ * fleet but did not depict it. Opening every file showed they were generic
+ * stock photographs of other vehicles — `lexus-rx-exterior.jpg` was a
+ * Lamborghini, `mercedes-c300-exterior.jpg` a BMW M4, `range-rover-sport-
+ * exterior.jpg` an Audi A3, `land-cruiser-exterior.jpg` a Ford — and every
+ * "-interior.jpg" was an exterior shot, with six of the eight shared across
+ * vehicles (identical checksums).
+ *
+ * Shipping a Lamborghini on a "Lexus RX 350" listing is a misrepresentation of
+ * the goods, so the imagery was withdrawn from the database and from `public/`
+ * rather than reordered. Returning an empty list here keeps the prototype
+ * fallback and `npm run db:seed-demo` consistent with that, so neither path can
+ * reintroduce a mismatched photograph.
+ *
+ * Photography is attached per vehicle through the existing admin upload flow
+ * (Admin -> Inventory -> [vehicle] -> Images), which stores the row against
+ * that vehicle id. Vehicles without photographs render an honest
+ * "photography pending" state instead of a substitute image.
+ */
+const NO_IMAGERY: PublicVehicle["images"] = [];
 
 export const DEMO_VEHICLES: PublicVehicle[] = [
   {
@@ -72,7 +80,7 @@ export const DEMO_VEHICLES: PublicVehicle[] = [
     customer_price_kobo: 71_000_000_00,
     public_arrival_note:
       "DEMO RECORD · Representative inventory. Cleared and ready for inspection at Victoria Island showroom.",
-    images: vehicleImages("mercedes-gle", DEMO_VEHICLE_IDS.mercedesGle),
+    images: NO_IMAGERY,
   },
   {
     id: DEMO_VEHICLE_IDS.bmwX5,
@@ -96,7 +104,7 @@ export const DEMO_VEHICLES: PublicVehicle[] = [
     customer_price_kobo: 54_000_000_00,
     public_arrival_note:
       "DEMO RECORD · Representative inventory. Inspected before shipment; Lagos customs documentation verified.",
-    images: vehicleImages("bmw-x5", DEMO_VEHICLE_IDS.bmwX5),
+    images: NO_IMAGERY,
   },
   {
     id: DEMO_VEHICLE_IDS.lexusRx,
@@ -119,7 +127,7 @@ export const DEMO_VEHICLES: PublicVehicle[] = [
     status: "available",
     customer_price_kobo: 60_000_000_00,
     public_arrival_note: null,
-    images: vehicleImages("lexus-rx", DEMO_VEHICLE_IDS.lexusRx),
+    images: NO_IMAGERY,
   },
   {
     id: DEMO_VEHICLE_IDS.rangeRoverSport,
@@ -143,7 +151,7 @@ export const DEMO_VEHICLES: PublicVehicle[] = [
     customer_price_kobo: 104_000_000_00,
     public_arrival_note:
       "DEMO RECORD · Representative inventory. Direct UK spec, fully duty-paid with transparent doorstep pricing.",
-    images: vehicleImages("range-rover-sport", DEMO_VEHICLE_IDS.rangeRoverSport),
+    images: NO_IMAGERY,
   },
   {
     id: DEMO_VEHICLE_IDS.landCruiser,
@@ -167,7 +175,7 @@ export const DEMO_VEHICLES: PublicVehicle[] = [
     customer_price_kobo: 145_000_000_00,
     public_arrival_note:
       "DEMO RECORD · Representative inventory. Currently in transit; tracking updates provided through vessel arrival.",
-    images: vehicleImages("land-cruiser", DEMO_VEHICLE_IDS.landCruiser),
+    images: NO_IMAGERY,
   },
   {
     id: DEMO_VEHICLE_IDS.mercedesC300,
@@ -191,7 +199,7 @@ export const DEMO_VEHICLES: PublicVehicle[] = [
     customer_price_kobo: 36_500_000_00,
     public_arrival_note:
       "DEMO RECORD · Representative inventory. Allocated and currently undergoing ocean transit to Lagos.",
-    images: vehicleImages("mercedes-c300", DEMO_VEHICLE_IDS.mercedesC300),
+    images: NO_IMAGERY,
   },
   {
     id: DEMO_VEHICLE_IDS.porscheCayenne,
@@ -215,7 +223,7 @@ export const DEMO_VEHICLES: PublicVehicle[] = [
     customer_price_kobo: 91_000_000_00,
     public_arrival_note:
       "DEMO RECORD · Representative inventory. Cleared and delivered to client specification earlier this quarter.",
-    images: vehicleImages("porsche-cayenne", DEMO_VEHICLE_IDS.porscheCayenne),
+    images: NO_IMAGERY,
   },
   {
     id: DEMO_VEHICLE_IDS.bmw7Series,
@@ -239,7 +247,7 @@ export const DEMO_VEHICLES: PublicVehicle[] = [
     customer_price_kobo: 122_000_000_00,
     public_arrival_note:
       "DEMO RECORD · Representative inventory. Sourced, imported, inspected and delivered through our flagship white-glove service.",
-    images: vehicleImages("bmw-7-series", DEMO_VEHICLE_IDS.bmw7Series),
+    images: NO_IMAGERY,
   },
 ];
 

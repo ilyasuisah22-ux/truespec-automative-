@@ -4,6 +4,7 @@ import { Lock } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { BrandMark } from "@/components/site/brand-mark";
 import { LoginForm } from "@/components/admin/login-form";
+import { AdminThemeToggle } from "@/components/admin/admin-theme-toggle";
 import { isSupabaseConfigured } from "@/lib/data/public";
 
 export const metadata: Metadata = {
@@ -15,10 +16,11 @@ export default function AdminLoginPage() {
   const configured = isSupabaseConfigured();
 
   return (
-    <div className="theme-force-dark flex min-h-dvh flex-col items-center justify-center bg-graphite-950 px-4 py-16">
+    <div className="flex min-h-dvh flex-col items-center justify-center bg-graphite-950 px-4 py-16">
       <div className="w-full max-w-md">
         <div className="mb-8 flex flex-col items-center gap-3 text-center">
-          <BrandMark surface="dark" />
+          {/* Adaptive lockup: the black logo appears in the light dashboard theme. */}
+          <BrandMark surface="adaptive" />
           <p className="mt-2 flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-ink-500">
             <Lock aria-hidden className="size-3.5" />
             Owner dashboard
@@ -47,9 +49,14 @@ export default function AdminLoginPage() {
 
         <p className="mt-6 text-center text-xs text-ink-500">
           <Link href="/" className="hover:text-gold-200">
-            ← Back to the public showroom
+            &larr; Back to the public showroom
           </Link>
         </p>
+      </div>
+
+      {/* Keeps the sign-in screen consistent with the dashboard's own theme. */}
+      <div className="mt-8">
+        <AdminThemeToggle />
       </div>
     </div>
   );

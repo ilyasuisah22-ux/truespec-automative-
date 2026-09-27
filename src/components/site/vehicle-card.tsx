@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/site/status-badge";
 import { WhatsappCta } from "@/components/site/whatsapp-cta";
 import { CallCta } from "@/components/site/call-cta";
 import { coverImage, type PublicVehicle } from "@/lib/inventory";
+import { PhotoPending } from "@/components/site/photo-pending";
 import { displayCustomerPrice, formatMileage, vehicleTitle } from "@/lib/inventory";
 import { resolveImageUrl } from "@/lib/images";
 import { vehicleEnquiryMessage } from "@/lib/whatsapp";
@@ -44,9 +45,7 @@ export function VehicleCard({
               loading="lazy"
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-sm text-ink-500">
-              No photograph available
-            </div>
+            <PhotoPending compact />
           )}
 
           <div className="absolute inset-0 bg-gradient-to-t from-scrim/80 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />

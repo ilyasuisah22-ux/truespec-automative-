@@ -19,8 +19,9 @@ export function AdminNav({ orientation = "horizontal" }: { orientation?: "horizo
     <nav
       aria-label="Dashboard"
       className={cn(
+        "scrollbar-hide",
         orientation === "horizontal"
-          ? "flex gap-1 overflow-x-auto"
+          ? "-mx-1 flex gap-1 overflow-x-auto"
           : "flex flex-col gap-1"
       )}
     >
@@ -32,13 +33,21 @@ export function AdminNav({ orientation = "horizontal" }: { orientation?: "horizo
             href={href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "inline-flex shrink-0 items-center gap-2 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+              "group relative inline-flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors duration-150",
               active
                 ? "bg-graphite-800 text-gold-300"
-                : "text-ink-300 hover:bg-graphite-850 hover:text-ink-50"
+                : "text-ink-400 hover:bg-graphite-850 hover:text-ink-50"
             )}
           >
-            <Icon aria-hidden className="size-4" />
+            {/* Gold rail marks the current section without shifting the row. */}
+            <span
+              aria-hidden
+              className={cn(
+                "absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-gold-400 transition-opacity",
+                active ? "opacity-100" : "opacity-0"
+              )}
+            />
+            <Icon aria-hidden className="size-4 shrink-0" />
             {label}
           </Link>
         );

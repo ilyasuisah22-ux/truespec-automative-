@@ -1,18 +1,39 @@
 import Link from "next/link";
-import { AlertTriangle, CarFront, CircleDollarSign, Package, Ship, TrendingUp } from "lucide-react";
+import {
+  AlertTriangle,
+  CarFront,
+  CircleDollarSign,
+  Images,
+  Package,
+  PlusCircle,
+  Settings,
+  Ship,
+  TrendingUp,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert } from "@/components/ui/alert";
 import { ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
-import { getDashboardMetrics } from "@/lib/data/admin";
+import { InventoryDonut } from "@/components/admin/inventory-donut";
+import { RecentInventory } from "@/components/admin/recent-inventory";
+import { getAdminInventory, getDashboardMetrics } from "@/lib/data/admin";
 import { formatNaira } from "@/lib/money";
 
 export const dynamic = "force-dynamic";
 
+/** Real, working admin destinations only. */
+const QUICK_ACTIONS = [
+  { href: "/admin/inventory/new", label: "Add vehicle", icon: PlusCircle },
+  { href: "/admin/inventory", label: "Manage inventory", icon: CarFront },
+  { href: "/admin/inventory", label: "Vehicle images", icon: Images },
+  { href: "/admin/settings", label: "Settings", icon: Settings },
+] as const;
+
 export default async function AdminOverviewPage() {
   let metrics;
+  let inventory;
   try {
-    metrics = await getDashboardMetrics();
+    [metrics, inventory] = await Promise.all([getDashboardMetrics(), getAdminInventory()]);
   } catch {
     return (
       <Alert tone="error" title="Could not load dashboard metrics">
@@ -87,6 +108,43 @@ export default async function AdminOverviewPage() {
             </ul>
           </section>
 
+          <section aria-labelledby="distribution" className="grid gap-4 lg:grid-cols-5">
+            <h2 id="distribution" className="sr-only">
+              Inventory distribution
+            </h2>
+
+            <Card className="lg:col-span-3">
+              <CardHeader className="flex items-center gap-2">
+                <CarFront aria-hidden className="size-4 text-gold-400" />
+                <CardTitle className="text-sm">Current distribution</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <InventoryDonut byStatus={metrics.byStatus} total={metrics.totalVehicles} />
+              </CardContent>
+            </Card>
+
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="text-sm">Quick actions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
+                  {QUICK_ACTIONS.map(({ href, label, icon: Icon }) => (
+                    <li key={label}>
+                      <Link
+                        href={href}
+                        className="flex items-center gap-2.5 rounded-md border border-graphite-700 px-3 py-2.5 text-sm text-ink-200 transition-colors hover:border-gold-400/60 hover:bg-graphite-850 hover:text-gold-200"
+                      >
+                        <Icon aria-hidden className="size-4 shrink-0" />
+                        {label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </section>
+
           <section aria-labelledby="financials" className="grid gap-4 lg:grid-cols-2">
             <h2 id="financials" className="sr-only">
               Financial summary
@@ -147,6 +205,25 @@ export default async function AdminOverviewPage() {
               </p>
             </Alert>
           ) : null}
+
+          <section aria-labelledby="recent-inventory">
+            <div className="mb-4 flex items-end justify-between gap-4">
+              <h2 id="recent-inventory" className="font-display text-lg tracking-wide text-ink-50">
+                Recent inventory
+              </h2>
+              <Link
+                href="/admin/inventory"
+                className="text-xs font-medium text-gold-300 hover:text-gold-200"
+              >
+                View all
+              </Link>
+            </div>
+            <Card>
+              <CardContent className="py-1">
+                <RecentInventory vehicles={inventory} />
+              </CardContent>
+            </Card>
+          </section>
         </>
       )}
     </div>

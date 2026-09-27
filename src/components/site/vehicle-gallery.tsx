@@ -5,16 +5,29 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { resolveImageUrl } from "@/lib/images";
+import { PhotoPending } from "@/components/site/photo-pending";
 import type { PublicImage } from "@/lib/serializers/public-vehicle";
+
+/** A horizontal swipe past this distance counts as "previous / next". */
+const SWIPE_THRESHOLD_PX = 48;
 
 /**
  * Premium accessible vehicle image gallery.
+ *
+ * The `images` prop is scoped to ONE vehicle by construction: the data layer
+ * groups `vehicle_images` rows by `vehicle_id`, so this component cannot show a
+ * photograph belonging to a different car. A vehicle with no photography
+ * renders an honest "photography pending" panel rather than substituting an
+ * unrelated image.
+ *
+ * Ordering: `images` arrives with the cover first, so the strongest exterior
+ * shot leads.
  *
  * Interaction support:
  *  - Thumbnails are real buttons with aria-labels and aria-current state.
  *  - Left/Right arrow keys move between images when focus is inside the gallery.
  *  - Home/End jump to first/last.
- *  - Touch users swipe via native scroll-snap on the thumbnail strip.
+ *  - Touch users can swipe the main frame, or scroll the thumbnail strip.
  *  - Announced politely via aria-live for screen readers.
  */
 export function VehicleGallery({
@@ -24,16 +37,23 @@ export function VehicleGallery({
   images: PublicImage[];
   title: string;
 }) {
-  const [index, setIndex] = React.useState(0);
+  // `rawIndex` is what the user navigated to; `index` is the safe value actually
+  // used to render. Deriving the clamp here (rather than correcting it in an
+  // effect) means a shorter image list can never leave us pointing at a
+  // photograph that does not exist.
+  const [rawIndex, setRawIndex] = React.useState(0);
   const total = images.length;
+  const index = total === 0 ? 0 : Math.min(rawIndex, total - 1);
 
   const go = React.useCallback(
     (next: number) => {
       if (total === 0) return;
-      setIndex(((next % total) + total) % total);
+      setRawIndex(((next % total) + total) % total);
     },
     [total]
   );
+
+  const touchStartX = React.useRef<number | null>(null);
 
   function onKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     if (e.key === "ArrowRight") {
@@ -51,10 +71,25 @@ export function VehicleGallery({
     }
   }
 
+  function onTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0]?.clientX ?? null;
+  }
+
+  function onTouchEnd(e: React.TouchEvent) {
+    const start = touchStartX.current;
+    touchStartX.current = null;
+    if (start === null) return;
+    const end = e.changedTouches[0]?.clientX;
+    if (end === undefined) return;
+    const delta = end - start;
+    if (Math.abs(delta) < SWIPE_THRESHOLD_PX) return;
+    go(delta < 0 ? index + 1 : index - 1);
+  }
+
   if (total === 0) {
     return (
-      <div className="flex aspect-[3/2] w-full items-center justify-center rounded-lg border border-graphite-700 bg-graphite-850 text-sm text-ink-500">
-        No photograph available for this vehicle
+      <div className="aspect-[3/2] w-full overflow-hidden rounded-lg border border-graphite-700 lg:aspect-[16/10]">
+        <PhotoPending />
       </div>
     );
   }
@@ -63,15 +98,19 @@ export function VehicleGallery({
 
   return (
     <div
-      className="space-y-4"
+      className="space-y-3"
       role="group"
       aria-roledescription="image gallery"
       aria-label={`${title} photographs`}
       onKeyDown={onKeyDown}
-      tabIndex={-1}
     >
-      {/* Main image */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg border border-graphite-700 bg-graphite-850 lg:aspect-[3/2]">
+      {/* Main image. A fixed aspect frame plus object-cover means the photo is
+          cropped to fit — never stretched or distorted. */}
+      <div
+        className="relative aspect-[3/2] w-full overflow-hidden rounded-lg border border-graphite-700 bg-graphite-850 lg:aspect-[16/10]"
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
         <Image
           key={active.id}
           src={resolveImageUrl(active.storage_path)}
@@ -79,7 +118,7 @@ export function VehicleGallery({
           fill
           priority={index === 0}
           sizes="(max-width: 1024px) 100vw, 60vw"
-          className="object-cover"
+          className="gallery-fade-in object-cover"
         />
 
         {/* Image gradient overlay for depth */}
@@ -91,22 +130,22 @@ export function VehicleGallery({
               type="button"
               onClick={() => go(index - 1)}
               aria-label="Previous photograph"
-              className="absolute left-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md border border-graphite-600 bg-graphite-950/80 text-ink-100 hover:border-gold-400 hover:text-gold-200 transition-colors"
+              className="absolute left-3 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-md border border-graphite-600 bg-graphite-950/75 text-ink-100 backdrop-blur-sm transition-colors hover:border-gold-400 hover:text-gold-200 sm:size-11"
             >
-              <ChevronLeft aria-hidden />
+              <ChevronLeft aria-hidden className="size-5" />
             </button>
             <button
               type="button"
               onClick={() => go(index + 1)}
               aria-label="Next photograph"
-              className="absolute right-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md border border-graphite-600 bg-graphite-950/80 text-ink-100 hover:border-gold-400 hover:text-gold-200 transition-colors"
+              className="absolute right-3 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-md border border-graphite-600 bg-graphite-950/75 text-ink-100 backdrop-blur-sm transition-colors hover:border-gold-400 hover:text-gold-200 sm:size-11"
             >
-              <ChevronRight aria-hidden />
+              <ChevronRight aria-hidden className="size-5" />
             </button>
           </>
         ) : null}
 
-        <p className="absolute bottom-3 right-3 rounded-sm bg-graphite-950/80 px-2 py-1 text-xs text-ink-200">
+        <p className="absolute bottom-3 right-3 rounded-sm bg-graphite-950/80 px-2 py-1 text-xs tabular-nums text-ink-200">
           {index + 1} / {total}
         </p>
       </div>
@@ -117,26 +156,26 @@ export function VehicleGallery({
 
       {/* Thumbnail strip */}
       {total > 1 ? (
-        <ul className="flex snap-x gap-3 overflow-x-auto scrollbar-hide pb-2">
+        <ul className="scrollbar-hide flex snap-x gap-2.5 overflow-x-auto pb-1">
           {images.map((img, i) => (
             <li key={img.id} className="snap-start">
               <button
                 type="button"
                 onClick={() => go(i)}
-                aria-label={`Show photograph ${i + 1}`}
+                aria-label={`Show photograph ${i + 1} of ${total}`}
                 aria-current={i === index}
                 className={cn(
-                  "relative block h-16 w-24 shrink-0 overflow-hidden rounded-md border-2 transition-all sm:h-20 sm:w-32",
+                  "gallery-thumb relative block size-20 shrink-0 overflow-hidden rounded-md border-2 sm:size-24",
                   i === index
-                    ? "border-gold-400 ring-1 ring-gold-400/30 scale-105"
-                    : "border-graphite-700 hover:border-graphite-500 hover:scale-102"
+                    ? "gallery-thumb-active"
+                    : "border-graphite-700 opacity-70 hover:opacity-100"
                 )}
               >
                 <Image
                   src={resolveImageUrl(img.storage_path)}
                   alt=""
                   fill
-                  sizes="128px"
+                  sizes="96px"
                   className="object-cover"
                 />
               </button>

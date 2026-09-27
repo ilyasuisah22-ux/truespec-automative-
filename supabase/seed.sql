@@ -121,27 +121,23 @@ values
 on conflict (vehicle_id) do nothing;
 
 -- ---------------------------------------------------------------------------
--- DEMO image records pointing at the sample photography in /public/demo/vehicles
+-- DEMO image records: INTENTIONALLY OMITTED.
+--
+-- This seed used to insert two `vehicle_images` rows per demo vehicle pointing
+-- at `public/demo/vehicles/<model>-{exterior,interior}.jpg`. Those files did not
+-- depict the vehicles they were named after — `lexus-rx-exterior.jpg` held a
+-- Lamborghini, `mercedes-c300-exterior.jpg` a BMW M4, `range-rover-sport-
+-- exterior.jpg` an Audi A3, `land-cruiser-exterior.jpg` a Ford — and every
+-- "-interior.jpg" was an exterior shot, six of the eight shared across
+-- vehicles. Presenting those images as the listed car is a misrepresentation
+-- of the goods, so the files were deleted and the rows withdrawn from the
+-- database.
+--
+-- Demo vehicles therefore seed with no photography and render the honest
+-- "photography pending" state. Attach real per-vehicle photographs through
+-- Admin -> Inventory -> [vehicle] -> Images, or place files in the
+-- `vehicle-images` Storage bucket and insert `vehicle_images` rows yourself.
 -- ---------------------------------------------------------------------------
-insert into public.vehicle_images (vehicle_id, storage_path, display_order, is_cover)
-select v.id,
-       '/demo/vehicles/' || v.img_key || '-' || k.variant || '.jpg',
-       k.ord,
-       (k.ord = 0)
-from (values
-  ('d0000000-0000-4000-8000-000000000001'::uuid, 'mercedes-gle'),
-  ('d0000000-0000-4000-8000-000000000002'::uuid, 'bmw-x5'),
-  ('d0000000-0000-4000-8000-000000000003'::uuid, 'lexus-rx'),
-  ('d0000000-0000-4000-8000-000000000004'::uuid, 'range-rover-sport'),
-  ('d0000000-0000-4000-8000-000000000005'::uuid, 'land-cruiser'),
-  ('d0000000-0000-4000-8000-000000000006'::uuid, 'mercedes-c300'),
-  ('d0000000-0000-4000-8000-000000000007'::uuid, 'porsche-cayenne'),
-  ('d0000000-0000-4000-8000-000000000008'::uuid, 'bmw-7-series')
-) as v(id, img_key)
-cross join (values ('exterior', 0), ('interior', 1)) as k(variant, ord)
-where not exists (
-  select 1 from public.vehicle_images vi where vi.vehicle_id = v.id
-);
 
 -- ---------------------------------------------------------------------------
 -- DEMO public settings. The WhatsApp number is a clearly-marked placeholder

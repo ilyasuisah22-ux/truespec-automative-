@@ -10,8 +10,10 @@ import { cn } from "@/lib/utils";
  * (see `.theme-dark-only` / `.theme-light-only` in globals.css) so the logo
  * follows the visitor's theme without any JavaScript.
  *
- * `surface="dark"` pins the white-ink lockup, which is what the always-dark
- * owner dashboard needs.
+ * `surface="dark"` pins the white-ink lockup. Prefer the default adaptive mode
+ * anywhere the theme can change — including the owner dashboard, which follows
+ * its own light/dark setting, since a pinned white lockup would be invisible on
+ * a light header.
  */
 
 export const TRUESPEC_LOGO = {

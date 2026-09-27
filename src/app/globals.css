@@ -152,50 +152,6 @@
   --shadow-gold-glow: 0 0 24px rgba(133, 93, 23, 0.18);
 }
 
-/* --------------------------------------------------------------------------
-   The owner dashboard is an internal, always-dark tool. Wrapping its shell in
-   `.theme-force-dark` re-declares the dark palette, so a visitor's light
-   preference can never bleed into the admin screens.
-   -------------------------------------------------------------------------- */
-.light .theme-force-dark {
-  color-scheme: dark;
-
-  --color-graphite-950: #0b0d0f;
-  --color-graphite-900: #12151a;
-  --color-graphite-850: #171b21;
-  --color-graphite-800: #1d222a;
-  --color-graphite-700: #262c36;
-  --color-graphite-600: #333a46;
-  --color-graphite-500: #4a5361;
-
-  --color-ink-50: #f7f8f9;
-  --color-ink-100: #eceef1;
-  --color-ink-200: #d6dae0;
-  --color-ink-300: #b3bac4;
-  --color-ink-400: #8b949f;
-  --color-ink-500: #6b7480;
-
-  --color-gold-100: #f7ecd0;
-  --color-gold-200: #eed9a3;
-  --color-gold-300: #e3c06d;
-  --color-gold-400: #d9a94a;
-  --color-gold-500: #c8932f;
-  --color-gold-600: #a97424;
-
-  --color-accent: #d9a94a;
-  --color-accent-hover: #e3c06d;
-  --color-on-accent: #0b0d0f;
-
-  --color-background: #0b0d0f;
-  --color-foreground: #f7f8f9;
-
-  --shadow-elevation-1: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-elevation-2: 0 4px 6px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
-  --shadow-elevation-3: 0 10px 15px rgba(0, 0, 0, 0.3), 0 4px 6px rgba(0, 0, 0, 0.15);
-  --shadow-elevation-4: 0 20px 25px rgba(0, 0, 0, 0.4), 0 10px 10px rgba(0, 0, 0, 0.15);
-  --shadow-gold-glow: 0 0 30px rgba(217, 169, 74, 0.25);
-}
-
 /* Theme-only visibility. Used by the header/footer logo lockups, which ship as
    separate white-ink and black-ink PNGs rather than one recolourable SVG. */
 .theme-dark-only {
@@ -577,4 +533,15 @@
 @keyframes shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+/* Gallery image cross-fade. Deliberately short and opacity-only: enough to
+   soften a change of photograph, not enough to read as an animation. */
+@keyframes gallery-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.gallery-fade-in {
+  animation: gallery-fade var(--transition-normal) ease-out both;
 }
