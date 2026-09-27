@@ -2,7 +2,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { rowsOf, rowOf } from "@/lib/supabase/query";
-import { isDemoMode } from "@/lib/data/public";
+import { isDemoMode, isShowroomUsingDemoInventory } from "@/lib/data/public";
 import { DEMO_VEHICLES } from "@/lib/demo/demo-data";
 import {
   DEMO_FINANCES,
@@ -144,7 +144,7 @@ function demoAdminVehicles(): AdminVehicle[] {
 }
 
 export async function getAdminInventory(): Promise<AdminVehicle[]> {
-  if (isDemoMode()) return demoAdminVehicles();
+  if (await isShowroomUsingDemoInventory()) return demoAdminVehicles();
 
   const supabase = createAdminClient();
   const { rows: vehicles, error } = rowsOf<VehicleRow>(
@@ -173,7 +173,7 @@ export async function getAdminInventory(): Promise<AdminVehicle[]> {
 }
 
 export async function getAdminVehicle(id: string): Promise<AdminVehicle | null> {
-  if (isDemoMode()) {
+  if (await isShowroomUsingDemoInventory()) {
     return demoAdminVehicles().find((v) => v.vehicle.id === id) ?? null;
   }
 
@@ -213,7 +213,7 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
     totalLandedCostKobo: 0,
     totalProjectedProfitKobo: 0,
     incompleteCostCount: 0,
-    isDemo: isDemoMode(),
+    isDemo: await isShowroomUsingDemoInventory(),
   };
 
   for (const item of inventory) {
@@ -237,7 +237,7 @@ export interface PrivateSettings {
 
 /** Reads the FULL settings row, including the private default full-tank cost. */
 export async function getPrivateSettings(): Promise<PrivateSettings> {
-  if (isDemoMode()) {
+  if (await isShowroomUsingDemoInventory()) {
     return {
       ...DEMO_PUBLIC_SETTINGS,
       default_full_tank_cost_kobo: DEMO_DEFAULT_FULL_TANK_COST_KOBO,

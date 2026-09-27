@@ -38,6 +38,47 @@ export const isSupabaseConfigured = (): boolean =>
 /** Demo mode is used when Supabase is absent, or explicitly forced. */
 export const isDemoMode = (): boolean => !isSupabaseConfigured() || process.env.DEMO_DATA === "true";
 
+/**
+ * True when the connected database actually contains vehicles.
+ *
+ * A freshly provisioned Supabase project has the schema and its RLS policies
+ * applied but an empty `vehicles` table. Without this check that renders the
+ * entire showroom as three empty states, because the demo fallback is only
+ * reachable through the explicit `DEMO_DATA` switch.
+ *
+ * Deliberately queries the WHOLE table with LIMIT 1 and never a
+ * status-filtered query: a real inventory that simply has no `landed` vehicles
+ * must still show a genuinely empty "Landed" section rather than borrowing demo
+ * cars. Request-cached, so all readers on a page share one round trip.
+ */
+const hasLiveInventory = cache(async (): Promise<boolean> => {
+  if (isDemoMode()) return false;
+  const supabase = await createClient();
+  const { rows, error } = await rowsOf<{ id: string }>(
+    await supabase.from("vehicles").select("id").limit(1)
+  );
+  // An unreachable or misconfigured database is treated as "no live inventory"
+  // so the showroom still renders instead of failing outright.
+  if (error) return false;
+  return rows.length > 0;
+});
+
+/**
+ * The single decision shared by every public and admin reader: are we serving
+ * the in-repo demonstration fleet, or live database rows?
+ *
+ * True when either
+ *  - demo mode is explicitly requested (DEMO_DATA=true / no Supabase), or
+ *  - Supabase is connected but holds no vehicles yet.
+ *
+ * Once a real vehicle exists in the database this is false everywhere, and the
+ * demo fleet disappears from both the showroom and the owner dashboard without
+ * any further change.
+ */
+export const isShowroomUsingDemoInventory = cache(
+  async (): Promise<boolean> => !(await hasLiveInventory())
+);
+
 export interface PublicSettings {
   whatsapp_number: string;
   site_tagline: string;
@@ -61,7 +102,7 @@ function groupImages(rows: Array<PublicImage & { vehicle_id: string }>) {
 }
 
 export async function getPublicVehicles(status?: VehicleStatus): Promise<PublicVehicle[]> {
-  if (isDemoMode()) {
+  if (await isShowroomUsingDemoInventory()) {
     return getDemoVehicles(status);
   }
 
@@ -97,7 +138,7 @@ export async function getPublicVehicles(status?: VehicleStatus): Promise<PublicV
 }
 
 export async function getPublicVehicleBySlug(slug: string): Promise<PublicVehicle | null> {
-  if (isDemoMode()) {
+  if (await isShowroomUsingDemoInventory()) {
     return getDemoVehicleBySlug(slug) ?? null;
   }
 
@@ -120,12 +161,41 @@ export async function getPublicVehicleBySlug(slug: string): Promise<PublicVehicl
 }
 
 export async function getPublicVehicleSlugs(): Promise<string[]> {
-  if (isDemoMode()) return DEMO_VEHICLES.map((v) => v.slug);
+  if (await isShowroomUsingDemoInventory()) return DEMO_VEHICLES.map((v) => v.slug);
 
   const supabase = await createClient();
   const { rows } = rowsOf<{ slug: string }>(await supabase.from("vehicles").select("slug"));
   return rows.map((r) => r.slug);
 }
+
+/** Counts of the public showroom, used by the homepage availability strip. */
+export interface PublicInventorySummary {
+  total: number;
+  byStatus: Record<VehicleStatus, number>;
+}
+
+function summarise(vehicles: ReadonlyArray<{ status: VehicleStatus }>): PublicInventorySummary {
+  const byStatus: Record<VehicleStatus, number> = { available: 0, on_order: 0, landed: 0 };
+  for (const vehicle of vehicles) byStatus[vehicle.status] += 1;
+  return { total: vehicles.length, byStatus };
+}
+
+/**
+ * One cheap `status`-only query gives the homepage its availability strip, so
+ * the visitor can orient themselves without waiting on three separate
+ * collection queries. Request-cached like the other readers.
+ */
+export const getPublicInventorySummary = cache(async (): Promise<PublicInventorySummary> => {
+  if (await isShowroomUsingDemoInventory()) return summarise(DEMO_VEHICLES);
+
+  const supabase = await createClient();
+  const { rows, error } = rowsOf<{ status: string }>(await supabase.from("vehicles").select("status"));
+  if (error) return summarise([]);
+
+  // `isVehicleStatus` narrows the scalar, not the row, so re-shape explicitly
+  // rather than letting an unknown status reach the counters.
+  return summarise(rows.flatMap((row) => (isVehicleStatus(row.status) ? [{ status: row.status }] : [])));
+});
 
 /**
  * Reads ONLY the two explicitly public settings columns. The private
@@ -137,12 +207,15 @@ export async function getPublicVehicleSlugs(): Promise<string[]> {
  * instead of issuing a request each.
  */
 export const getPublicSettings = cache(async (): Promise<PublicSettings> => {
-  if (isDemoMode()) return DEMO_PUBLIC_SETTINGS;
+  if (await isShowroomUsingDemoInventory()) return DEMO_PUBLIC_SETTINGS;
 
   const supabase = await createClient();
   const { row } = rowOf<PublicSettings>(
     await supabase.from("site_settings").select("whatsapp_number, site_tagline").eq("id", 1).maybeSingle()
   );
 
-  return row ?? { whatsapp_number: "", site_tagline: "Premium vehicle sourcing and import." };
+  // A missing settings row would otherwise leave the enquiry CTAs with no
+  // number at all; the demo settings keep them in a clearly-labelled
+  // "not configured yet" state instead of silently disappearing.
+  return row ?? DEMO_PUBLIC_SETTINGS;
 });

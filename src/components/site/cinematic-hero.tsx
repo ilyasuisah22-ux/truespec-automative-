@@ -155,9 +155,13 @@ export function CinematicHero({
         <div className="absolute inset-x-0 bottom-0 h-2/5 scrim-gradient opacity-60" />
       </div>
 
-      <div className="container-page relative flex min-h-[36rem] flex-col justify-center py-20 sm:py-28 lg:min-h-[42rem] lg:py-32">
+      {/* Compact footprint: the hero sets the tone and hands the visitor to the
+          showroom. On a 900px-tall laptop the availability strip below is already
+          peeking into the first screen, so cars are never more than one scroll
+          away. Minimums exist only so short landscape phones still fit the copy. */}
+      <div className="container-page relative flex min-h-[24rem] flex-col justify-center py-14 sm:py-16 lg:min-h-[27rem] lg:py-20">
         <div key={active.src} className="max-w-3xl hero-copy-rise">
-          <p className="mb-6 inline-flex items-center gap-2 border border-gold-500/40 bg-gold-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-gold-300">
+          <p className="mb-4 inline-flex items-center gap-2 border border-gold-500/40 bg-gold-500/10 px-3.5 py-1.5 text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-gold-300">
             <span aria-hidden className="size-1.5 rounded-full bg-gold-400" />
             {active.eyebrow}
           </p>
@@ -168,19 +172,19 @@ export function CinematicHero({
             <span className="text-gradient-gold">{active.headlineAccent}</span>
           </h1>
 
-          <p className="mt-8 max-w-xl text-base leading-relaxed text-ink-300 sm:text-lg">
+          <p className="mt-5 max-w-xl text-sm leading-relaxed text-ink-300 sm:text-base lg:text-lg">
             {active.body}
           </p>
 
           {active.featured ? (
-            <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-graphite-700 bg-graphite-900/70 px-4 py-1.5 text-xs uppercase tracking-widest text-ink-300 backdrop-blur">
+            <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-graphite-700 bg-graphite-900/70 px-4 py-1.5 text-xs uppercase tracking-widest text-ink-300 backdrop-blur">
               Featured
               <span className="text-gold-300">{active.featured}</span>
             </p>
           ) : null}
 
-          <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:items-center">
-            <Link href="/inventory" className="btn-premium-primary px-8 py-4 text-base">
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Link href="/inventory" className="btn-premium-primary px-7 py-3.5 text-base">
               Explore inventory
               <ArrowRight aria-hidden className="size-5" />
             </Link>
@@ -192,13 +196,13 @@ export function CinematicHero({
                 rel="noopener noreferrer"
                 variant="outline"
                 size="lg"
-                className="px-8"
+                className="px-7"
               >
                 <MessageCircle aria-hidden />
                 Chat on WhatsApp
               </ButtonLink>
             ) : (
-              <ButtonLink href="/inventory" variant="outline" size="lg" className="px-8">
+              <ButtonLink href="/inventory" variant="outline" size="lg" className="px-7">
                 <MessageCircle aria-hidden />
                 Browse and enquire
               </ButtonLink>
@@ -211,7 +215,7 @@ export function CinematicHero({
             role="group"
             aria-roledescription="carousel pagination"
             aria-label="Featured vehicles"
-            className="mt-14 flex flex-wrap items-center gap-2.5"
+            className="mt-8 flex flex-wrap items-center gap-2.5"
           >
             {slides.map((slide, i) => (
               <button

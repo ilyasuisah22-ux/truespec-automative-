@@ -8,7 +8,7 @@ import { Alert } from "@/components/ui/alert";
 import { BrandMark } from "@/components/site/brand-mark";
 import { requireAdmin, UnauthenticatedError, UnauthorizedError } from "@/lib/auth/require-admin";
 import { signOutAction } from "@/lib/actions/auth";
-import { isDemoMode } from "@/lib/data/public";
+import { isDemoMode, isShowroomUsingDemoInventory } from "@/lib/data/public";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -61,6 +61,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   const demo = isDemoMode();
+  // True when the database is connected but still holds no vehicles, so the
+  // dashboard is showing the prototype fleet rather than real listings. Editing
+  // is still available in this state -- that is exactly how the owner replaces
+  // the prototype records with real vehicles.
+  const prototypeFleet = !demo && (await isShowroomUsingDemoInventory());
 
   return (
     // `theme-force-dark` keeps the owner dashboard on the dark palette even if
@@ -98,16 +103,26 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </div>
       </header>
 
-      {demo ? (
+      {demo || prototypeFleet ? (
         <div className="border-b border-status-onorder/40 bg-status-onorder/10">
           <div className="container-page flex items-start gap-2.5 py-3 text-xs text-ink-100">
             <TriangleAlert aria-hidden className="mt-0.5 size-4 shrink-0 text-status-onorder" />
-            <p>
-              <strong className="font-semibold">Demonstration data.</strong> Inventory and financial
-              figures shown are illustrative sample records, not TrueSpec Automotive&apos;s real
-              business data. Supabase is not connected in this deployment, so create, edit and
-              delete are disabled — see the README to connect your project.
-            </p>
+            {demo ? (
+              <p>
+                <strong className="font-semibold">Demonstration data.</strong> Inventory and
+                financial figures shown are illustrative sample records, not TrueSpec
+                Automotive&apos;s real business data. Supabase is not connected in this
+                deployment, so create, edit and delete are disabled — see the README to
+                connect your project.
+              </p>
+            ) : (
+              <p>
+                <strong className="font-semibold">Prototype inventory.</strong> Your database is
+                connected but contains no vehicles yet, so the dashboard is showing the
+                demonstration fleet. Add your first vehicle to replace it — the public showroom
+                switches to real listings as soon as one exists.
+              </p>
+            )}
           </div>
         </div>
       ) : null}

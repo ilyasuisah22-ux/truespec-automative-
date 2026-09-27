@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { CinematicHero, type HeroSlide } from "@/components/site/cinematic-hero";
 import { InventoryCollection } from "@/components/site/inventory-collection";
+import { InventoryQuickNav } from "@/components/site/inventory-quick-nav";
 import { WhatsappCta } from "@/components/site/whatsapp-cta";
 import { CallCta } from "@/components/site/call-cta";
 import { getPublicSettings } from "@/lib/data/public";
@@ -91,17 +92,17 @@ const PROMISES = [
   {
     icon: ShieldCheck,
     title: "Inspected before purchase",
-    body: "Each unit is reviewed and documented before it is committed to shipping.",
+    body: "Reviewed and documented before it is committed to shipping.",
   },
   {
     icon: Ship,
     title: "Tracked import process",
-    body: "Follow your vehicle from purchase through shipping, clearing and delivery.",
+    body: "Purchase, shipping, clearing and delivery, with updates at each stage.",
   },
   {
     icon: Wallet,
     title: "One doorstep price",
-    body: "The price you see includes the full landed cost — no hidden add-ons.",
+    body: "The price shown is the full landed cost. No hidden add-ons.",
   },
 ];
 
@@ -110,27 +111,48 @@ const PROCESS = [
     icon: ClipboardCheck,
     step: "01",
     title: "Tell us the vehicle",
-    body: "Send the make, model, year and any must-have specification. We confirm realistic market pricing before you commit.",
+    body: "Send the make, model and year. We confirm realistic pricing first.",
   },
   {
     icon: FileCheck2,
     step: "02",
     title: "We source and inspect",
-    body: "We bid, buy and inspect on your behalf, then send you the photographs and history before shipping.",
+    body: "We buy it, inspect it and send you the photographs before shipping.",
   },
   {
     icon: Ship,
     step: "03",
     title: "Shipping and clearing",
-    body: "Booked, shipped and cleared. You receive milestone updates rather than having to chase them.",
+    body: "Booked, shipped and cleared, with milestone updates as it happens.",
   },
   {
     icon: KeyRound,
     step: "04",
-    title: "Delivered on a full tank",
-    body: "Handed over at the showroom or delivered to your door, cleaned, fuelled and ready to drive.",
+    title: "Delivered",
+    body: "Handed over or delivered to your door, cleaned and fuelled.",
   },
 ];
+
+const COLLECTIONS = [
+  {
+    status: "available",
+    heading: "Available now",
+    copy: "In Nigeria and ready for inspection.",
+    href: "/available",
+  },
+  {
+    status: "on_order",
+    heading: "On order",
+    copy: "Purchased and in transit to Nigeria.",
+    href: "/on-order",
+  },
+  {
+    status: "landed",
+    heading: "Landed this year",
+    copy: "Recently cleared and delivered.",
+    href: "/landed",
+  },
+] as const;
 
 
 export default async function HomePage() {
@@ -139,38 +161,60 @@ export default async function HomePage() {
   return (
     <>
       <CinematicHero slides={HERO_SLIDES} whatsappNumber={settings.whatsapp_number} />
+      {/* ---------------- Quick availability / navigation ---------------- */}
+      <InventoryQuickNav />
 
-      {/* ---------------- Trust Pillars ---------------- */}
-      <section className="section-spacing border-b border-graphite-800 bg-graphite-900/40">
+      {/* ---------------- The showroom ----------------
+          The vehicle grids are the point of this page, so they sit immediately
+          below the hero. Everything informational is pushed underneath them. */}
+      {COLLECTIONS.map((collection) => (
+        <section key={collection.status} className="container-page py-10 sm:py-12">
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 className="text-display-subsection text-ink-50">{collection.heading}</h2>
+              <p className="mt-2 text-sm text-ink-400">{collection.copy}</p>
+            </div>
+            <Link
+              href={collection.href}
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-gold-300 underline-offset-4 transition-colors hover:text-gold-200"
+            >
+              View all
+              <ArrowRight aria-hidden className="size-4" />
+            </Link>
+          </div>
+
+          <InventoryCollection status={collection.status} />
+        </section>
+      ))}
+
+
+      {/* ---------------- Trust Pillars ----------------
+          Compact: three short commitment cards, no editorial space. */}
+      <section className="border-b border-graphite-800 bg-graphite-900/40 py-12 sm:py-14">
         <div className="container-page">
-          <div className="max-w-2xl mx-auto text-center mb-16">
-            <p className="mb-4 inline-flex items-center justify-center gap-2 border border-gold-500/40 bg-gold-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-gold-300">
+          <div className="mx-auto mb-8 max-w-2xl text-center">
+            <p className="mb-3 inline-flex items-center justify-center gap-2 border border-gold-500/40 bg-gold-500/10 px-3.5 py-1.5 text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-gold-300">
               <BadgeCheck aria-hidden className="size-3.5" />
               Our commitment
             </p>
-            <h2 className="text-display-section text-ink-50">
-              Why TrueSpec Automotive
-            </h2>
-            <p className="mt-5 text-sm leading-relaxed text-ink-400 sm:text-base">
-              {settings.site_tagline}
-            </p>
+            <h2 className="text-display-subsection text-ink-50">Why TrueSpec Automotive</h2>
+            <p className="mt-3 text-sm leading-relaxed text-ink-400">{settings.site_tagline}</p>
           </div>
 
-          <div className="grid gap-8 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-3">
             {PROMISES.map(({ icon: Icon, title, body }) => (
               <div
                 key={title}
-                className="group relative p-6 rounded-xl border border-graphite-700 bg-graphite-900/60 card-premium-hover"
+                className="group relative rounded-lg border border-graphite-700 bg-graphite-900/60 p-5 card-premium-hover"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-gold-400/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="relative flex gap-4">
-                  <div className="relative shrink-0">
-                    <div className="absolute inset-0 bg-gold-400/10 rounded-lg group-hover:bg-gold-400/20 transition-colors" />
-                    <Icon aria-hidden className="relative size-6 shrink-0 text-gold-400 group-hover:text-gold-300 transition-colors" />
-                  </div>
+                <div className="relative flex gap-3.5">
+                  <Icon
+                    aria-hidden
+                    className="size-5 shrink-0 text-gold-400 transition-colors group-hover:text-gold-300"
+                  />
                   <div>
-                    <p className="font-display tracking-wide text-ink-50">{title}</p>
-                    <p className="mt-2 text-sm leading-relaxed text-ink-400">{body}</p>
+                    <p className="font-display text-sm tracking-wide text-ink-50">{title}</p>
+                    <p className="mt-1.5 text-sm leading-relaxed text-ink-400">{body}</p>
                   </div>
                 </div>
               </div>
@@ -179,109 +223,57 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ---------------- How it works ---------------- */}
-      <section className="section-spacing border-b border-graphite-800">
+      {/* ---------------- How it works ----------------
+          Compact: a single heading row plus four tight step cards. */}
+      <section className="border-b border-graphite-800 py-12 sm:py-14">
         <div className="container-page">
-          <div className="mb-14 max-w-2xl">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-gold-400">
-              How it works
-            </p>
-            <h2 className="text-display-section text-ink-50">Four steps, one team</h2>
-            <p className="mt-4 text-sm leading-relaxed text-ink-400 sm:text-base">
-              You never deal with an auction, a freight forwarder and a clearing agent separately. We
-              hold the whole chain.
+          <div className="mb-7 flex flex-wrap items-baseline justify-between gap-3">
+            <h2 className="text-display-subsection text-ink-50">How it works</h2>
+            <p className="text-sm text-ink-400">
+              One team holds the whole chain — sourcing, shipping, clearing and delivery.
             </p>
           </div>
 
-          <ol className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {PROCESS.map(({ icon: Icon, step, title, body }) => (
               <li
                 key={step}
-                className="group relative overflow-hidden rounded-xl border border-graphite-700 bg-graphite-900/60 p-6 card-premium-hover"
+                className="group relative rounded-lg border border-graphite-700 bg-graphite-900/60 p-5 card-premium-hover"
               >
-                <span
-                  aria-hidden
-                  className="absolute right-4 top-3 font-display text-4xl leading-none text-graphite-700 transition-colors group-hover:text-gold-500/40"
-                >
-                  {step}
-                </span>
-                <div className="relative">
-                  <span className="inline-flex size-10 items-center justify-center rounded-lg bg-gold-400/10 text-gold-400 transition-colors group-hover:bg-gold-400/20">
-                    <Icon aria-hidden className="size-5" />
+                <div className="relative flex items-center gap-3">
+                  <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-gold-400/10 text-gold-400 transition-colors group-hover:bg-gold-400/20">
+                    <Icon aria-hidden className="size-4" />
                   </span>
-                  <h3 className="mt-5 font-display text-base tracking-wide text-ink-50">{title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-ink-400">{body}</p>
+                  <span aria-hidden className="font-display text-sm leading-none text-graphite-600">
+                    {step}
+                  </span>
                 </div>
+                <h3 className="mt-3.5 font-display text-sm tracking-wide text-ink-50">{title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-ink-400">{body}</p>
               </li>
             ))}
           </ol>
         </div>
       </section>
 
-      {/* ---------------- Collections ---------------- */}
-      {(
-        [
-          {
-            status: "available",
-            heading: "Available now",
-            copy: "In Nigeria and ready for inspection.",
-            href: "/available",
-          },
-          {
-            status: "on_order",
-            heading: "On order",
-            copy: "Purchased and in transit to Nigeria.",
-            href: "/on-order",
-          },
-          {
-            status: "landed",
-            heading: "Landed this year",
-            copy: "Recently cleared and delivered.",
-            href: "/landed",
-          },
-        ] as const
-      ).map((section) => (
-        <section key={section.status} className="container-page section-spacing">
-          <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <h2 className="text-display-subsection text-ink-50">
-                {section.heading}
-              </h2>
-              <p className="mt-3 text-sm text-ink-400">{section.copy}</p>
-            </div>
-            <Link
-              href={section.href}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-gold-300 underline-offset-4 hover:text-gold-200 transition-colors"
-            >
-              View all
-              <ArrowRight aria-hidden className="size-4" />
-            </Link>
-          </div>
-
-          <InventoryCollection status={section.status} />
-        </section>
-      ))}
-
       {/* ---------------- Talk to us ---------------- */}
       <section className="container-page pb-8">
-        <div className="relative overflow-hidden rounded-2xl border border-graphite-700 bg-graphite-900/60 px-6 py-14 text-center sm:px-12">
+        <div className="relative overflow-hidden rounded-xl border border-graphite-700 bg-graphite-900/60 px-6 py-10 text-center sm:px-12 sm:py-12">
           <div
             aria-hidden
             className="pointer-events-none absolute inset-x-0 -top-24 h-48 bg-gold-400/5 blur-3xl"
           />
           <div className="relative mx-auto max-w-2xl">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-gold-400">
+            <p className="mb-3 text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-gold-400">
               Talk to us
             </p>
-            <h2 className="text-display-section text-ink-50">
-              Not sure what to buy yet?
-            </h2>
-            <p className="mt-5 text-sm leading-relaxed text-ink-300 sm:text-base">
-              Tell us your budget and how you intend to use the vehicle. We will shortlist two or
-              three realistic options, price each one fully landed, and let you decide.
+            <h2 className="text-display-subsection text-ink-50">Not sure what to buy yet?</h2>
+            <p className="mt-3 text-sm leading-relaxed text-ink-300">
+              Tell us your budget and how you will use the vehicle. We shortlist realistic options,
+              price each one fully landed, and let you decide.
             </p>
 
-            <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <WhatsappCta
                 whatsappNumber={settings.whatsapp_number}
                 message={DEFAULT_GENERAL_MESSAGE}
