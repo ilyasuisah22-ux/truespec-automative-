@@ -170,6 +170,35 @@
   display: block;
 }
 
+/* ---------------------------------------------------------------------------
+   Admin rail: pre-hydration state.
+   `ADMIN_RAIL_INIT_SCRIPT` (admin-nav.tsx) writes the remembered collapsed /
+   expanded choice onto <html> before the first paint. These rules render that
+   choice immediately, so refreshing with a collapsed rail never flashes the wide
+   one while React hydrates; from then on the component's own classes take over.
+   The attribute rule outranks the Tailwind width utility (higher specificity),
+   and `writeSidebarMode` keeps the attribute in step with the component state.
+   --------------------------------------------------------------------------- */
+html[data-admin-rail="collapsed"] .admin-rail {
+  width: 4.5rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+html[data-admin-rail="collapsed"] .admin-rail .admin-rail-heading,
+html[data-admin-rail="collapsed"] .admin-rail .admin-rail-label,
+html[data-admin-rail="collapsed"] .admin-rail .admin-rail-toggle-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 @layer base {
   * {
     border-color: var(--color-graphite-700);

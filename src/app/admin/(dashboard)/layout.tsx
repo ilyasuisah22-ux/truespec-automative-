@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LogOut, ShieldAlert, TriangleAlert } from "lucide-react";
-import { AdminSidebar } from "@/components/admin/admin-nav";
+import { AdminSidebar, AdminSidebarInitScript } from "@/components/admin/admin-nav";
 import { AdminThemeToggle } from "@/components/admin/admin-theme-toggle";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
@@ -75,6 +75,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
     // toggle, and that choice is stored separately from the public showroom's
     // preference (see lib/theme.ts) so the two never interfere.
     <div className="flex min-h-dvh flex-col bg-graphite-950">
+      {/* Restores the remembered rail width before the first paint, so a
+          collapsed rail never flashes wide on refresh. */}
+      <AdminSidebarInitScript />
+
       <header className="sticky top-0 z-40 border-b border-graphite-800 bg-graphite-900/95 backdrop-blur supports-[backdrop-filter]:bg-graphite-900/85">
         <div className="container-page flex h-16 items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-3 sm:gap-4">

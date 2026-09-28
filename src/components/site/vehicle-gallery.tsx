@@ -45,27 +45,31 @@ const SWIPE_THRESHOLD_PX = 48;
  *  - Announced politely via aria-live for screen readers.
  */
 export function VehicleGallery({ images, title }: { images: PublicImage[]; title: string }) {
-  // `rawIndex` is what the user navigated to; `index` is the safe value actually
-  // used to render. Deriving the clamp here (rather than correcting it in an
-  // effect) means a shorter frame list can never leave us pointing at something
-  // that does not exist.
+  // `index` is a plain position inside `images` and is ALWAYS kept inside
+  // `0 … total - 1`:
+  //   - `go` wraps with a modulo before storing, so next/previous on the last or
+  //     first frame wrap around instead of running off the end;
+  //   - `safeIndex` below re-derives the value modulo `total` on render, so a
+  //     shorter frame list can never leave us pointing outside the array.
   //
-  // `since` remembers the frame count that `rawIndex` was chosen against, so when
-  // the list changes size the index is re-derived back into range — a derived
-  // value, not an effect and not a ref write during render.
-  const [rawIndex, setRawIndex] = React.useState(0);
-  const [since, setSince] = React.useState(0);
+  // Bug history: this used to keep a second `since` anchor and compute
+  // `since - floor((since - rawIndex) / total)`. That arithmetic only ever
+  // produced `total` (one past the end → `active === undefined`, so the guard
+  // below rendered the "photography pending" tile and the counter read "4 / 3")
+  // or `total - 1` (so selecting frame 1 jumped to the last frame). Wrapping the
+  // stored index is both correct and simpler; it is a pure calculation, with no
+  // effect and no ref write during render.
+  const [index, setIndex] = React.useState(0);
 
   const total = images.length;
-  const index = total === 0 ? 0 : since - Math.floor((since - rawIndex) / total);
-  const active: PublicImage | undefined = total === 0 ? undefined : images[index];
+  const safeIndex = total === 0 ? 0 : ((index % total) + total) % total;
+  const active: PublicImage | undefined = total === 0 ? undefined : images[safeIndex];
   const credit = active ? demoImageCredit(active.storage_path) : undefined;
 
   const go = React.useCallback(
     (next: number) => {
       if (total === 0) return;
-      setSince(total);
-      setRawIndex(((next % total) + total) % total);
+      setIndex(((next % total) + total) % total);
     },
     [total]
   );
@@ -75,10 +79,10 @@ export function VehicleGallery({ images, title }: { images: PublicImage[]; title
   function onKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     if (e.key === "ArrowRight") {
       e.preventDefault();
-      go(index + 1);
+      go(safeIndex + 1);
     } else if (e.key === "ArrowLeft") {
       e.preventDefault();
-      go(index - 1);
+      go(safeIndex - 1);
     } else if (e.key === "Home") {
       e.preventDefault();
       go(0);
@@ -100,7 +104,7 @@ export function VehicleGallery({ images, title }: { images: PublicImage[]; title
     if (end === undefined) return;
     const delta = end - start;
     if (Math.abs(delta) < SWIPE_THRESHOLD_PX) return;
-    go(delta < 0 ? index + 1 : index - 1);
+    go(delta < 0 ? safeIndex + 1 : safeIndex - 1);
   }
 
   if (total === 0 || !active) {
@@ -129,9 +133,9 @@ export function VehicleGallery({ images, title }: { images: PublicImage[]; title
           <Image
             key={active.id}
             src={resolveImageUrl(active.storage_path)}
-            alt={`${title} — photograph ${index + 1} of ${total}`}
+            alt={`${title} — photograph ${safeIndex + 1} of ${total}`}
             fill
-            priority={index === 0}
+            priority={safeIndex === 0}
             sizes="(max-width: 1024px) 100vw, 60vw"
             className="gallery-fade-in object-cover"
           />
@@ -143,7 +147,7 @@ export function VehicleGallery({ images, title }: { images: PublicImage[]; title
             <>
               <button
                 type="button"
-                onClick={() => go(index - 1)}
+                onClick={() => go(safeIndex - 1)}
                 aria-label="Previous view"
                 className="absolute left-3 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-md border border-graphite-600 bg-graphite-950/75 text-ink-100 backdrop-blur-sm transition-colors hover:border-gold-400 hover:text-gold-200 sm:size-11"
               >
@@ -151,7 +155,7 @@ export function VehicleGallery({ images, title }: { images: PublicImage[]; title
               </button>
               <button
                 type="button"
-                onClick={() => go(index + 1)}
+                onClick={() => go(safeIndex + 1)}
                 aria-label="Next view"
                 className="absolute right-3 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-md border border-graphite-600 bg-graphite-950/75 text-ink-100 backdrop-blur-sm transition-colors hover:border-gold-400 hover:text-gold-200 sm:size-11"
               >
@@ -161,12 +165,12 @@ export function VehicleGallery({ images, title }: { images: PublicImage[]; title
           ) : null}
 
           <p className="absolute bottom-3 right-3 rounded-sm bg-graphite-950/80 px-2 py-1 text-xs tabular-nums text-ink-200">
-            {index + 1} / {total}
+            {safeIndex + 1} / {total}
           </p>
         </div>
 
         <p aria-live="polite" className="sr-only">
-          View {index + 1} of {total}
+          View {safeIndex + 1} of {total}
         </p>
 
         {/* Attribution, required by the CC BY / CC BY-SA licences of the
@@ -205,10 +209,10 @@ export function VehicleGallery({ images, title }: { images: PublicImage[]; title
                   type="button"
                   onClick={() => go(i)}
                   aria-label={`Show view ${i + 1} of ${total}`}
-                  aria-current={i === index}
+                  aria-current={i === safeIndex}
                   className={cn(
                     "gallery-thumb relative block size-20 shrink-0 overflow-hidden rounded-md border-2 sm:size-24",
-                    i === index
+                    i === safeIndex
                       ? "gallery-thumb-active"
                       : "border-graphite-700 opacity-70 hover:opacity-100"
                   )}

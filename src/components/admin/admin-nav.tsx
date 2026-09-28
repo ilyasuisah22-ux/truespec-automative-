@@ -7,6 +7,8 @@ import {
   CarFront,
   LayoutDashboard,
   Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
   PlusCircle,
   Settings,
   X,
@@ -60,17 +62,115 @@ function groupActive(pathname: string, group: (typeof GROUPS)[number]) {
   return group.links.some((l) => isActive(pathname, l.href, l.exact));
 }
 
+/* -------------------------------------------------------------------------- */
+/* Rail width preference                                                       */
+/* -------------------------------------------------------------------------- */
+
+/** Where the owner's collapsed/expanded choice is remembered (per browser). */
+const SIDEBAR_STORAGE_KEY = "truespec-admin-sidebar";
+
+/** Same-tab notification, so every rail on the page agrees on the width. */
+const SIDEBAR_CHANGE_EVENT = "truespec:admin-sidebar";
+
+type SidebarMode = "expanded" | "collapsed";
+
+/** `data-admin-rail` mirrors the mode onto <html> for the pre-paint styles. */
+function applyRailAttribute(mode: SidebarMode) {
+  document.documentElement.setAttribute("data-admin-rail", mode);
+}
+
+function readSidebarMode(): SidebarMode {
+  try {
+    return window.localStorage.getItem(SIDEBAR_STORAGE_KEY) === "collapsed"
+      ? "collapsed"
+      : "expanded";
+  } catch {
+    // Blocked storage (private mode) simply means "expanded": the rail is fully
+    // usable, it just does not remember the choice.
+    return "expanded";
+  }
+}
+
+/**
+ * The preference is an EXTERNAL store rather than component state, so the rail
+ * never has to copy `localStorage` into state inside an effect. `storage` also
+ * fires for other tabs, so a second dashboard tab follows along.
+ */
+function subscribeToSidebarMode(onChange: () => void) {
+  window.addEventListener(SIDEBAR_CHANGE_EVENT, onChange);
+  window.addEventListener("storage", onChange);
+  return () => {
+    window.removeEventListener(SIDEBAR_CHANGE_EVENT, onChange);
+    window.removeEventListener("storage", onChange);
+  };
+}
+
+function readSidebarModeOnClient(): boolean {
+  return readSidebarMode() === "collapsed";
+}
+
+function readSidebarModeOnServer(): boolean {
+  return false;
+}
+
+function writeSidebarMode(mode: SidebarMode) {
+  try {
+    window.localStorage.setItem(SIDEBAR_STORAGE_KEY, mode);
+  } catch {
+    // Storage unavailable: fall through and still apply it for this page.
+  }
+  applyRailAttribute(mode);
+  window.dispatchEvent(new Event(SIDEBAR_CHANGE_EVENT));
+}
+
+/**
+ * Pre-paint bootstrap for the rail, inlined in the dashboard layout.
+ *
+ * It writes the remembered mode onto <html> before the browser paints, and
+ * `globals.css` uses that attribute to render the narrow rail directly. Without
+ * it a returning owner whose rail is collapsed would see it flash wide on every
+ * refresh, because React can only know the preference after hydration. The same
+ * attribute is kept in step by `writeSidebarMode`, so CSS and React never
+ * disagree.
+ */
+export const ADMIN_RAIL_INIT_SCRIPT = [
+  "(function(){",
+  "try{",
+  `var m=localStorage.getItem(${JSON.stringify(SIDEBAR_STORAGE_KEY)});`,
+  `document.documentElement.setAttribute(${JSON.stringify(
+    "data-admin-rail"
+  )},m==="collapsed"?"collapsed":"expanded");`,
+  "}catch(e){}",
+  "})();",
+].join("");
+
 /** The navigation list, shared by the desktop rail and the mobile drawer. */
-function NavList({ onNavigate }: { onNavigate?: () => void }) {
+function NavList({
+  onNavigate,
+  collapsed = false,
+}: {
+  onNavigate?: () => void;
+  /** Icon-rail mode: labels become screen-reader-only and `title` tooltips. */
+  collapsed?: boolean;
+}) {
   const pathname = usePathname();
 
   return (
     <>
-      {GROUPS.map((group) => (
-        <div key={group.heading} className="mb-6 last:mb-0">
+      {GROUPS.map((group, groupIndex) => (
+        <div
+          key={group.heading}
+          className={cn(
+            "mb-6 last:mb-0",
+            // In the icon rail there is no room for a heading, so every group
+            // after the first is separated by a hairline instead.
+            collapsed && groupIndex > 0 && "border-t border-graphite-800 pt-4"
+          )}
+        >
           <p
             className={cn(
               "mb-2 px-3 text-[0.62rem] font-semibold uppercase tracking-[0.18em] transition-colors",
+              collapsed && "admin-rail-heading sr-only",
               groupActive(pathname, group) ? "text-gold-400/90" : "text-ink-500"
             )}
           >
@@ -85,8 +185,12 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
                     href={href}
                     onClick={onNavigate}
                     aria-current={active ? "page" : undefined}
+                    // Collapsed: the native tooltip names the destination, since
+                    // the label itself is no longer visible.
+                    title={collapsed ? label : undefined}
                     className={cn(
-                      "group relative flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors duration-150",
+                      "group relative flex items-center rounded-md text-sm font-medium transition-colors duration-150",
+                      collapsed ? "justify-center px-0 py-2.5" : "gap-3 px-3 py-2.5",
                       active
                         ? "bg-gold-500/12 text-gold-200"
                         : "text-ink-400 hover:bg-graphite-850 hover:text-ink-50"
@@ -107,7 +211,9 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
                         active ? "text-gold-400" : "text-ink-500 group-hover:text-ink-300"
                       )}
                     />
-                    <span className="truncate">{label}</span>
+                    <span className={cn("admin-rail-label truncate", collapsed && "sr-only")}>
+                      {label}
+                    </span>
                   </Link>
                 </li>
               );
@@ -133,6 +239,23 @@ export function AdminSidebar() {
   const [open, setOpen] = React.useState(false);
   const close = React.useCallback(() => setOpen(false), []);
 
+  /**
+   * Collapsed/expanded is an EXTERNAL store (localStorage), read with
+   * `useSyncExternalStore` — the same pattern the showroom hero uses for
+   * `prefers-reduced-motion`. No effect copies it into state, the server
+   * snapshot is explicit ("expanded"), and a change in another tab is picked up
+   * through the `storage` event.
+   */
+  const collapsed = React.useSyncExternalStore(
+    subscribeToSidebarMode,
+    readSidebarModeOnClient,
+    readSidebarModeOnServer
+  );
+
+  const toggleCollapsed = React.useCallback(() => {
+    writeSidebarMode(collapsed ? "expanded" : "collapsed");
+  }, [collapsed]);
+
   // Lock body scroll while the drawer is open, and close on Escape.
   React.useEffect(() => {
     if (!open) return;
@@ -153,10 +276,44 @@ export function AdminSidebar() {
   return (
     <>
       {/* ---------------- Desktop rail ---------------- */}
-      <aside className="hidden w-64 shrink-0 border-r border-graphite-800 bg-graphite-900/60 lg:block">
-        <div className="sticky top-16 flex max-h-[calc(100dvh-4rem)] flex-col overflow-y-auto px-4 py-6">
-          <nav aria-label="Dashboard">
-            <NavList />
+      {/* Normal flow, not `fixed`: the dashboard content simply takes back the
+          space the rail gives up, so collapsing never covers or overlaps it. */}
+      <aside
+        className={cn(
+          "admin-rail hidden shrink-0 border-r border-graphite-800 bg-graphite-900/60 transition-[width] duration-200 lg:block",
+          collapsed ? "w-[4.5rem]" : "w-64"
+        )}
+      >
+        <div
+          className={cn(
+            "sticky top-16 flex max-h-[calc(100dvh-4rem)] flex-col overflow-y-auto py-4",
+            collapsed ? "px-2" : "px-4"
+          )}
+        >
+          <button
+            type="button"
+            onClick={toggleCollapsed}
+            aria-expanded={!collapsed}
+            aria-controls="admin-rail-nav"
+            aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
+            title={collapsed ? "Expand navigation" : "Collapse navigation"}
+            className={cn(
+              "mb-4 inline-flex items-center rounded-md border border-graphite-700 text-ink-400 transition-colors hover:border-gold-400/60 hover:text-gold-200",
+              collapsed ? "mx-auto size-9 justify-center" : "w-full gap-2 px-3 py-2 text-xs"
+            )}
+          >
+            {collapsed ? (
+              <PanelLeftOpen aria-hidden className="size-4" />
+            ) : (
+              <>
+                <PanelLeftClose aria-hidden className="size-4" />
+                <span className="admin-rail-toggle-label">Collapse</span>
+              </>
+            )}
+          </button>
+
+          <nav id="admin-rail-nav" aria-label="Dashboard">
+            <NavList collapsed={collapsed} />
           </nav>
         </div>
       </aside>
@@ -231,5 +388,14 @@ function MobileNavToggle({
       <Menu aria-hidden className="size-5" />
     </button>
   );
+}
+
+/**
+ * Inlines `ADMIN_RAIL_INIT_SCRIPT` before the dashboard paints, so a refresh
+ * with a collapsed rail never flashes the wide one. Rendered by the dashboard
+ * layout; it only touches a `data-` attribute on <html>.
+ */
+export function AdminSidebarInitScript() {
+  return <script dangerouslySetInnerHTML={{ __html: ADMIN_RAIL_INIT_SCRIPT }} />;
 }
 
