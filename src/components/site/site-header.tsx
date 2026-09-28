@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BrandMark } from "@/components/site/brand-mark";
 import { ThemeToggle } from "@/components/site/theme-toggle";
@@ -97,17 +97,40 @@ export function SiteHeader({ whatsappNumber }: { whatsappNumber: string }) {
           <button
             type="button"
             className={cn(
-              "inline-flex h-11 w-11 items-center justify-center rounded-md border transition-all duration-200 lg:hidden",
+              "relative inline-flex h-11 w-11 items-center justify-center rounded-md border transition-all duration-300 lg:hidden",
               open
-                ? "border-gold-400/50 bg-graphite-900 text-gold-400"
-                : "border-graphite-700 text-ink-100 hover:border-graphite-600 hover:bg-graphite-900/50"
+                ? "border-gold-400/60 bg-graphite-900 text-gold-400 shadow-[0_0_12px_rgba(230,178,74,0.15)]"
+                : "border-graphite-700 text-ink-100 hover:border-gold-400/40 hover:bg-graphite-900/50"
             )}
             aria-expanded={open}
             aria-controls="mobile-nav"
             aria-label={open ? "Close navigation menu" : "Open navigation menu"}
             onClick={() => setOpen((v) => !v)}
           >
-            {open ? <X aria-hidden className="size-5" /> : <Menu aria-hidden className="size-5" />}
+            <span className="relative flex h-4 w-5 flex-col justify-between" aria-hidden>
+              <span
+                className={cn(
+                  "h-0.5 w-full rounded-full transition-all duration-300 ease-out origin-center",
+                  open
+                    ? "translate-y-[7px] rotate-45 bg-gold-400"
+                    : "bg-current"
+                )}
+              />
+              <span
+                className={cn(
+                  "h-0.5 w-full rounded-full transition-all duration-300 ease-out",
+                  open ? "opacity-0 scale-x-0" : "bg-current opacity-100"
+                )}
+              />
+              <span
+                className={cn(
+                  "h-0.5 w-full rounded-full transition-all duration-300 ease-out origin-center",
+                  open
+                    ? "-translate-y-[7px] -rotate-45 bg-gold-400"
+                    : "bg-current"
+                )}
+              />
+            </span>
           </button>
         </div>
       </div>

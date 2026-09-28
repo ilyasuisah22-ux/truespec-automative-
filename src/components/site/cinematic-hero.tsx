@@ -7,7 +7,6 @@ import { ArrowRight, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ButtonLink } from "@/components/ui/button";
 import { DEMO_VEHICLES } from "@/lib/demo/demo-data";
-import { demoImageCredit } from "@/lib/demo/demo-image-credits";
 import { coverImage } from "@/lib/inventory";
 import { DEFAULT_GENERAL_MESSAGE, buildWhatsappLink } from "@/lib/whatsapp";
 
@@ -140,7 +139,7 @@ export function CinematicHero({
       onFocusCapture={() => setPaused(true)}
       onBlurCapture={() => setPaused(false)}
     >
-      <div className="absolute inset-0 -z-10">
+      <div className="absolute inset-0 -z-10 overflow-hidden">
         {slides.map((slide, i) => {
           /* The frame is the SLIDE'S OWN vehicle photograph — the demo
              record's cover image, keyed by vehicle id — so the copy can never
@@ -149,7 +148,6 @@ export function CinematicHero({
              picture. */
           const record = DEMO_VEHICLES.find((v) => v.id === slide.vehicleId);
           const photo = record ? coverImage(record) : undefined;
-          const credit = photo ? demoImageCredit(photo.storage_path) : undefined;
           return (
             <div
               key={slide.vehicleId}
@@ -172,33 +170,10 @@ export function CinematicHero({
                     fill
                     priority={i === 0}
                     sizes="100vw"
-                    className="object-cover"
+                    className="object-cover object-center sm:object-[center_35%]"
                   />
                 ) : null}
               </div>
-              {/* Per-frame attribution, shown steadily so it does not strobe
-                  with the 2s rotation. Required by the CC BY / CC BY-SA
-                  licences of the demonstration photographs. */}
-              {i === index && credit ? (
-                <p className="absolute bottom-3 left-3 z-10 rounded-sm bg-graphite-950/70 px-2.5 py-1 text-[0.6rem] tracking-wide text-ink-400 backdrop-blur-sm">
-                  Photograph:{" "}
-                  <a
-                    href={credit.sourceUrl}
-                    tabIndex={-1}
-                    className="underline underline-offset-2"
-                  >
-                    {credit.author}
-                  </a>{" "}
-                  ·{" "}
-                  <a
-                    href={credit.licenceUrl}
-                    tabIndex={-1}
-                    className="underline underline-offset-2"
-                  >
-                    {credit.licence}
-                  </a>
-                </p>
-              ) : null}
             </div>
           );
         })}
@@ -207,7 +182,7 @@ export function CinematicHero({
             scrim normalises the photograph's brightness, the theme-coloured
             wash lifts the background behind the copy, and the bottom scrim
             keeps the frame controls readable. */}
-        <div className="absolute inset-0 bg-scrim/20" />
+        <div className="absolute inset-0 bg-scrim/30" />
         <div className="absolute inset-0 hero-gradient" />
         <div className="absolute inset-x-0 bottom-0 h-2/5 scrim-gradient opacity-60" />
       </div>
@@ -215,12 +190,15 @@ export function CinematicHero({
       {/* Compact footprint: the hero sets the tone and hands the visitor to the
           showroom. On a 900px-tall laptop the availability strip below is already
           peeking into the first screen, so cars are never more than one scroll
-          away. Minimums exist only so short landscape phones still fit the copy. */}
+          away. Foreground copy and controls remain stationary while slides
+          crossfade in the background. */}
       <div className="container-page relative flex min-h-[24rem] flex-col justify-center py-14 sm:py-16 lg:min-h-[27rem] lg:py-20">
-        <div key={active.vehicleId} className="max-w-3xl hero-copy-rise">
+        <div className="max-w-3xl">
           <p className="mb-4 inline-flex items-center gap-2 border border-gold-500/40 bg-gold-500/10 px-3.5 py-1.5 text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-gold-300">
             <span aria-hidden className="size-1.5 rounded-full bg-gold-400" />
-            {active.eyebrow}
+            <span key={`eyebrow-${active.vehicleId}`} className="transition-opacity duration-300">
+              {active.eyebrow}
+            </span>
           </p>
 
           <h1 id="hero-heading" className="text-display-hero text-ink-50">
@@ -229,14 +207,19 @@ export function CinematicHero({
             <span className="text-gradient-gold">{active.headlineAccent}</span>
           </h1>
 
-          <p className="mt-5 max-w-xl text-sm leading-relaxed text-ink-300 sm:text-base lg:text-lg">
+          <p
+            key={`body-${active.vehicleId}`}
+            className="mt-5 max-w-xl text-sm leading-relaxed text-ink-300 sm:text-base lg:text-lg transition-opacity duration-300"
+          >
             {active.body}
           </p>
 
           {active.featured ? (
             <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-graphite-700 bg-graphite-900/70 px-4 py-1.5 text-xs uppercase tracking-widest text-ink-300 backdrop-blur">
               Featured
-              <span className="text-gold-300">{active.featured}</span>
+              <span key={`featured-${active.vehicleId}`} className="text-gold-300 font-medium">
+                {active.featured}
+              </span>
             </p>
           ) : null}
 

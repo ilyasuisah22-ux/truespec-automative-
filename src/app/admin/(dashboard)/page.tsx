@@ -86,20 +86,24 @@ export default async function AdminOverviewPage() {
             <h2 id="inventory-counts" className="sr-only">
               Inventory counts
             </h2>
-            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <ul className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
               {cards.map(({ label, value, icon: Icon, hint }) => (
                 <li key={label}>
-                  <Card>
-                    <CardContent>
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <p className="text-[0.65rem] uppercase tracking-widest text-ink-500">
+                  <Card className="h-full">
+                    <CardContent className="p-3.5 sm:p-5">
+                      <div className="flex items-start justify-between gap-1.5">
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-[0.65rem] font-semibold uppercase tracking-wider text-ink-500 sm:tracking-widest">
                             {label}
                           </p>
-                          <p className="mt-2 font-display text-3xl text-ink-50">{value}</p>
-                          <p className="mt-1 text-xs text-ink-500">{hint}</p>
+                          <p className="mt-1 font-display text-2xl text-ink-50 sm:mt-2 sm:text-3xl">
+                            {value}
+                          </p>
+                          <p className="mt-1 truncate text-[0.7rem] text-ink-500 sm:text-xs">
+                            {hint}
+                          </p>
                         </div>
-                        <Icon aria-hidden className="size-5 text-gold-400" />
+                        <Icon aria-hidden className="size-4 shrink-0 text-gold-400 sm:size-5" />
                       </div>
                     </CardContent>
                   </Card>

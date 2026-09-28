@@ -28,15 +28,19 @@ export default async function AdminInventoryPage({
     );
   }
 
-  const rows: InventoryTableRow[] = inventory.map((item) => ({
-    id: item.vehicle.id,
-    slug: item.vehicle.slug,
-    title: vehicleTitle(item.vehicle),
-    status: item.vehicle.status,
-    customerPriceKobo: item.vehicle.customer_price_kobo,
-    landedCostKobo: item.landedCost.totalLandedCostKobo,
-    profitKobo: item.projectedProfitKobo,
-  }));
+  const rows: InventoryTableRow[] = inventory.map((item) => {
+    const cover = item.images?.find((img) => img.is_cover) ?? item.images?.[0];
+    return {
+      id: item.vehicle.id,
+      slug: item.vehicle.slug,
+      title: vehicleTitle(item.vehicle),
+      coverImagePath: cover?.storage_path ?? null,
+      status: item.vehicle.status,
+      customerPriceKobo: item.vehicle.customer_price_kobo,
+      landedCostKobo: item.landedCost.totalLandedCostKobo,
+      profitKobo: item.projectedProfitKobo,
+    };
+  });
 
   const canEdit = !isDemoMode();
 

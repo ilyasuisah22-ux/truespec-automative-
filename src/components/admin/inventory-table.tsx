@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useFormStatus } from "react-dom";
 import { AlertTriangle, Loader2, Pencil, Search, Trash2 } from "lucide-react";
@@ -8,8 +9,10 @@ import { Button, ButtonLink } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/field";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
+import { PhotoPending } from "@/components/site/photo-pending";
 import { formatNaira } from "@/lib/money";
 import { STATUS_LABELS } from "@/lib/inventory";
+import { resolveImageUrl } from "@/lib/images";
 import type { VehicleStatus } from "@/lib/supabase/types";
 import { deleteVehicleAction } from "@/lib/actions/vehicles";
 import { cn } from "@/lib/utils";
@@ -18,6 +21,7 @@ export interface InventoryTableRow {
   id: string;
   slug: string;
   title: string;
+  coverImagePath?: string | null;
   status: VehicleStatus;
   customerPriceKobo: number;
   landedCostKobo: number | null;
@@ -232,58 +236,75 @@ function MobileCards({
   onDeleteRequest: (row: InventoryTableRow) => void;
 }) {
   return (
-    <ul className="space-y-3 md:hidden">
+    <ul className="grid grid-cols-2 gap-3 md:hidden">
       {rows.map((row) => (
         <li
           key={row.id}
-          className="rounded-lg border border-graphite-700 bg-graphite-850 p-4 shadow-sm"
+          className="flex flex-col justify-between overflow-hidden rounded-lg border border-graphite-700 bg-graphite-850 p-3 shadow-sm"
         >
-          <div className="flex items-start justify-between gap-3">
-            <div>
+          <div>
+            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-md border border-graphite-700/80 bg-graphite-900">
+              {row.coverImagePath ? (
+                <Image
+                  src={resolveImageUrl(row.coverImagePath)}
+                  alt=""
+                  fill
+                  sizes="(max-width: 768px) 50vw, 300px"
+                  className="object-cover"
+                />
+              ) : (
+                <PhotoPending compact />
+              )}
+              <div className="absolute top-1.5 right-1.5">
+                <Badge tone={statusTone(row.status)} className="scale-90 origin-top-right">
+                  {STATUS_LABELS[row.status]}
+                </Badge>
+              </div>
+            </div>
+
+            <div className="mt-2.5">
               <Link
                 href={`/admin/inventory/${row.id}`}
-                className="font-medium text-ink-50 hover:text-gold-200"
+                className="line-clamp-2 text-xs font-medium leading-snug text-ink-50 hover:text-gold-200"
               >
                 {row.title}
               </Link>
-              <p className="text-xs text-ink-500">{row.slug}</p>
+              <p className="mt-0.5 truncate text-[0.65rem] text-ink-500">{row.slug}</p>
             </div>
-            <Badge tone={statusTone(row.status)}>{STATUS_LABELS[row.status]}</Badge>
+
+            <div className="mt-2 border-t border-graphite-700/60 pt-2 text-[0.7rem]">
+              <div className="flex items-baseline justify-between">
+                <span className="text-ink-500">Price:</span>
+                <span className="font-medium text-ink-100">
+                  {row.customerPriceKobo === 0 ? "Request" : formatNaira(row.customerPriceKobo)}
+                </span>
+              </div>
+              <div className="mt-1 flex items-baseline justify-between">
+                <span className="text-ink-500">Profit:</span>
+                <span
+                  className={cn(
+                    "font-medium",
+                    row.profitKobo === null
+                      ? "text-ink-400"
+                      : row.profitKobo >= 0
+                        ? "text-status-available"
+                        : "text-danger"
+                  )}
+                >
+                  {row.profitKobo === null ? "—" : formatNaira(row.profitKobo)}
+                </span>
+              </div>
+            </div>
           </div>
 
-          <dl className="mt-3 grid grid-cols-3 gap-2 border-t border-graphite-700/60 pt-3 text-xs">
-            <div>
-              <dt className="text-ink-500">Price</dt>
-              <dd className="mt-0.5 font-medium text-ink-100">
-                {row.customerPriceKobo === 0 ? "Request" : formatNaira(row.customerPriceKobo)}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-ink-500">Landed</dt>
-              <dd className="mt-0.5 text-ink-300">
-                {row.landedCostKobo === null ? "—" : formatNaira(row.landedCostKobo)}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-ink-500">Profit</dt>
-              <dd
-                className={cn(
-                  "mt-0.5 font-medium",
-                  row.profitKobo === null
-                    ? "text-ink-400"
-                    : row.profitKobo >= 0
-                      ? "text-status-available"
-                      : "text-danger"
-                )}
-              >
-                {row.profitKobo === null ? "—" : formatNaira(row.profitKobo)}
-              </dd>
-            </div>
-          </dl>
-
-          <div className="mt-4 flex items-center gap-2">
-            <ButtonLink href={`/admin/inventory/${row.id}`} variant="outline" size="sm">
-              <Pencil aria-hidden />
+          <div className="mt-3 flex items-center justify-between gap-1.5 border-t border-graphite-700/50 pt-2.5">
+            <ButtonLink
+              href={`/admin/inventory/${row.id}`}
+              variant="outline"
+              size="sm"
+              className="flex-1 justify-center px-2 py-1.5 text-xs h-8"
+            >
+              <Pencil aria-hidden className="size-3.5" />
               Edit
             </ButtonLink>
             <Button
@@ -291,10 +312,10 @@ function MobileCards({
               size="sm"
               disabled={!editable}
               onClick={() => onDeleteRequest(row)}
-              className="text-danger"
+              className="text-danger px-2 py-1.5 text-xs h-8"
+              aria-label={`Delete ${row.title}`}
             >
-              <Trash2 aria-hidden />
-              Delete
+              <Trash2 aria-hidden className="size-3.5" />
             </Button>
           </div>
         </li>
