@@ -188,3 +188,29 @@ was changed from "740i M Sport" to the actual "740d xDrive Excellence".
 
 
 
+
+## How these frames reach the live site
+
+The photographs above live in `public/demo/vehicles/` and are referenced from
+`vehicle_images.storage_path`. That second half is the part that can go wrong:
+
+| Surface | What it reads | Consequence when the table is empty |
+| --- | --- | --- |
+| Cinematic hero | `DEMO_VEHICLES` in `src/lib/demo/demo-data.ts`, compiled into the app | Hero still shows the real photographs |
+| Inventory cards + detail galleries | `vehicle_images` rows in the connected Supabase project | Every card reads **"Photography pending"** |
+| JSON API (`/api/public/vehicles`) | Same rows as the cards | `images: []` for every vehicle |
+
+So a database that holds the fleet but no `vehicle_images` rows renders real
+photographs in the hero and "Photography pending" on every card at the same
+time. That is not a rendering fault and not a licensing problem — it is the
+honest empty state of a database that holds no imagery. The repair is to write
+the rows:
+
+```
+npm run db:seed-demo
+```
+
+The command is idempotent: it refreshes the 8 vehicle records from
+`demo-data.ts` (so the listing text matches the donor that was actually
+photographed), re-inserts the 20 image rows against their vehicle ids, and
+leaves an already-configured `site_settings` row untouched.

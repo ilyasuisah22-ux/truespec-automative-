@@ -96,15 +96,25 @@ inventory that simply has no `landed` vehicles still shows a genuinely empty
 npm run db:seed-demo
 ```
 
-This upserts the 8 prototype vehicles, their 8 cost records and the singleton
-settings row, using the same ids, slugs and columns as `supabase/seed.sql`. It
-is idempotent, never deletes, and only ever touches those fixed demo ids. It
-requires `SUPABASE_SERVICE_ROLE_KEY` in `.env.local` because anonymous clients
-are not allowed to write inventory.
+This upserts the 8 prototype vehicles, their 20 licensed photographs (the
+`vehicle_images` rows the showroom actually renders), their 8 cost records and
+the singleton settings row, using the same ids, slugs and columns as
+`supabase/seed.sql`. It is idempotent, never deletes, and only ever touches
+those fixed demo ids. It requires `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`
+because anonymous clients are not allowed to write inventory.
 
-It seeds **no** `vehicle_images` rows: the prototype fleet ships without
-photography (see above), and a listing must never borrow another vehicle's
-image. Upload real photographs per vehicle through the admin.
+**Re-running it is also the repair step for missing photography.** The public
+cards and galleries read `vehicle_images` from the connected database, so a
+database that holds the fleet but zero image rows renders an honest
+"Photography pending" tile on every card — even though the photographs are
+present in `public/demo/vehicles/` and the hero (which reads the in-repo
+records) shows them correctly. Only this seeder and the admin upload flow write
+those rows. If the live showroom says "Photography pending" for a vehicle whose
+gallery is verified, check `vehicle_images` first, then run this command.
+
+An existing `site_settings` row is never overwritten: the singleton holds the
+client's real WhatsApp number once it has been set in `Admin → Settings`, so the
+seeder only inserts it when it is absent.
 
 Cost rows are written only to the RLS-protected `vehicle_finances` table; they
 are never readable by anonymous callers and are never part of `PublicVehicle`.
@@ -144,5 +154,7 @@ before first paint, so neither surface flashes the other's theme.
 The seeded number `2340000000000` is a clearly-marked development placeholder.
 Until it is replaced, every enquiry CTA explains that WhatsApp is not
 configured rather than linking to a dead number. Set the real number in
-`Admin → Settings`; do not edit it in code.
+`Admin → Settings`; do not edit it in code. Re-running `npm run db:seed-demo`
+leaves a configured number alone — it only inserts the placeholder when the
+settings row does not exist yet.
 

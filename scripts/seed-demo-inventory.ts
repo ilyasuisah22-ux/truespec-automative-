@@ -170,11 +170,22 @@ async function seedFinances() {
   return rows.length;
 }
 
-async function seedSettings() {
-  const { error } = await supabase
-    .from("site_settings")
-    .upsert({ id: 1, ...DEMO_PUBLIC_SETTINGS }, { onConflict: "id" });
+/**
+ * The singleton `site_settings` row holds the client's LIVE WhatsApp number once
+ * it has been configured in Admin -> Settings, so a re-run of this seeder must
+ * never overwrite it with the development placeholder. Without this guard a
+ * repair run — for example re-seeding photography after the fleet gained real
+ * photographs — would silently replace the business number with a fake one.
+ * Therefore: insert the demo row only when the row is absent.
+ */
+async function seedSettings(): Promise<"inserted" | "preserved"> {
+  const existing = await supabase.from("site_settings").select("id").eq("id", 1).maybeSingle();
+  assertOk(existing.error, "Reading site settings");
+  if (existing.data) return "preserved";
+
+  const { error } = await supabase.from("site_settings").insert({ id: 1, ...DEMO_PUBLIC_SETTINGS });
   assertOk(error, "Seeding site settings");
+  return "inserted";
 }
 
 async function main() {
@@ -189,8 +200,12 @@ async function main() {
   const finances = await seedFinances();
   console.log(`[seed-demo]   finance records seeded .... ${finances}`);
 
-  await seedSettings();
-  console.log("[seed-demo]   site settings seeded ...... 1");
+  const settings = await seedSettings();
+  console.log(
+    `[seed-demo]   site settings ........... ${
+      settings === "preserved" ? "already configured, left untouched" : "inserted"
+    }`
+  );
 
   console.log(
     [
@@ -198,8 +213,12 @@ async function main() {
       "[seed-demo] Done. The public showroom and the owner dashboard now read these",
       "[seed-demo] rows through the normal Supabase path.",
       "",
-      "[seed-demo] The WhatsApp number is still the development placeholder. Set the real",
-      "[seed-demo] one in Admin -> Settings.",
+      settings === "inserted"
+        ? "[seed-demo] The WhatsApp number is the development placeholder. Set the real"
+        : "[seed-demo] The configured WhatsApp number was left untouched. Manage it in",
+      settings === "inserted"
+        ? "[seed-demo] one in Admin -> Settings."
+        : "[seed-demo] Admin -> Settings.",
       "",
       "[seed-demo] Before go-live, clear the prototype records with:",
       '[seed-demo]   psql "<connection string>" -f supabase/scripts/remove_demo_data.sql',
