@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { ButtonLink } from "@/components/ui/button";
 import { DEMO_VEHICLES } from "@/lib/demo/demo-data";
 import { coverImage } from "@/lib/inventory";
+import { resolveImageUrl } from "@/lib/images";
 import { DEFAULT_GENERAL_MESSAGE, buildWhatsappLink } from "@/lib/whatsapp";
 
 export interface HeroSlide {
@@ -139,7 +140,38 @@ export function CinematicHero({
       onFocusCapture={() => setPaused(true)}
       onBlurCapture={() => setPaused(false)}
     >
-      <div className="absolute inset-0 -z-10 overflow-hidden">
+      <div className="relative aspect-[16/10] w-full overflow-hidden sm:hidden">
+        {slides.map((slide, i) => {
+          const mRecord = DEMO_VEHICLES.find((v) => v.id === slide.vehicleId);
+          const mPhoto = mRecord ? coverImage(mRecord) : undefined;
+          return (
+            <div
+              key={slide.vehicleId}
+              aria-hidden={i === index ? undefined : true}
+              className={cn(
+                "absolute inset-0 bg-graphite-950 transition-opacity duration-1000",
+                i === index ? "opacity-100" : "opacity-0"
+              )}
+            >
+              {mPhoto ? (
+                <Image
+                  src={resolveImageUrl(mPhoto.storage_path)}
+                  alt=""
+                  fill
+                  priority={i === 0}
+                  sizes="100vw"
+                  className="object-cover object-center"
+                />
+              ) : null}
+            </div>
+          );
+        })}
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-graphite-950 via-graphite-950/60 to-transparent"
+        />
+      </div>
+      <div className="absolute inset-0 -z-10 hidden overflow-hidden sm:block">
         {slides.map((slide, i) => {
           /* The frame is the SLIDE'S OWN vehicle photograph — the demo
              record's cover image, keyed by vehicle id — so the copy can never
@@ -192,7 +224,7 @@ export function CinematicHero({
           peeking into the first screen, so cars are never more than one scroll
           away. Foreground copy and controls remain stationary while slides
           crossfade in the background. */}
-      <div className="container-page relative flex min-h-[24rem] flex-col justify-center py-14 sm:py-16 lg:min-h-[27rem] lg:py-20">
+      <div className="container-page relative flex flex-col justify-center py-10 sm:min-h-[24rem] sm:py-16 lg:min-h-[27rem] lg:py-20">
         <div className="max-w-3xl">
           <p className="mb-4 inline-flex items-center gap-2 border border-gold-500/40 bg-gold-500/10 px-3.5 py-1.5 text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-gold-300">
             <span aria-hidden className="size-1.5 rounded-full bg-gold-400" />
