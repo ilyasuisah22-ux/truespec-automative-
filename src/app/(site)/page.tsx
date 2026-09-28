@@ -38,10 +38,11 @@ export const metadata: Metadata = {
  * vehicle rotate.
  *
  * Each slide names a VEHICLE ID, not an image path. The hero renders that
- * vehicle's own illustrative artwork, so the frame and the "Featured" label are
- * derived from the same record and can never drift out of sync — the previous
- * implementation paired hand-written labels with hand-written image paths, which
- * is exactly how a slide ends up announcing a BMW over a Mercedes.
+ * vehicle's own real photograph (its gallery cover image), so the frame and
+ * the "Featured" label are derived from the same record and can never drift
+ * out of sync — the previous implementation paired hand-written labels with
+ * hand-written image paths, which is exactly how a slide ends up announcing a
+ * BMW over a Mercedes.
  */
 const HERO_SLIDES: HeroSlide[] = [
   {
@@ -74,7 +75,7 @@ const HERO_SLIDES: HeroSlide[] = [
     headline: "Drive something",
     headlineAccent: "exceptional",
     body: "From allocation to keys in hand, one team owns your order. Track every milestone and receive your vehicle on a full tank.",
-    featured: "Lexus RX 350 F SPORT",
+    featured: "Lexus RX 350 Premium Plus",
   },
   {
     vehicleId: DEMO_VEHICLE_IDS.porscheCayenne,
@@ -82,7 +83,7 @@ const HERO_SLIDES: HeroSlide[] = [
     headline: "Drive something",
     headlineAccent: "exceptional",
     body: "Performance SUVs with full service history. Inspected before shipping, delivered with transparent pricing.",
-    featured: "Porsche Cayenne",
+    featured: "Porsche Cayenne S",
   },
   {
     vehicleId: DEMO_VEHICLE_IDS.landCruiser,
@@ -90,7 +91,7 @@ const HERO_SLIDES: HeroSlide[] = [
     headline: "Drive something",
     headlineAccent: "exceptional",
     body: "The definitive African SUV, sourced from GCC markets with full service records and ready for Nigerian roads.",
-    featured: "Toyota Land Cruiser VXR",
+    featured: "Toyota Land Cruiser ZX",
   },
 ];
 

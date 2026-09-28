@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "db:seed-demo": "tsx scripts/seed-demo-inventory.ts",
-    "db:remove-demo-images": "tsx scripts/remove-demo-images.ts"
+    "db:remove-demo-images": "tsx scripts/remove-demo-images.ts",
+    "verify:demo-photography": "tsx scripts/verify-demo-photography.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

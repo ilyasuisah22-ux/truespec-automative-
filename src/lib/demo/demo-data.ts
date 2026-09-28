@@ -14,9 +14,25 @@ import type { PublicVehicle } from "@/lib/inventory";
  *     structurally incapable of leaking financial data because no financial
  *     field exists here.
  *  2. Every price, mileage and status below is invented for demonstration.
- *  3. These records deliberately carry NO imagery. The photographs that used to
- *     sit in /public/demo/vehicles/ did not depict these vehicles and were
- *     withdrawn — see `NO_IMAGERY` below.
+ *  3. Every description field that a visitor can compare against a photograph —
+ *     brand, model, trim, year and exterior colour — describes the vehicle that
+ *     was ACTUALLY photographed for that listing. Where the Commons donor
+ *     differed from what this file used to claim, the record was corrected to
+ *     the donor rather than the photograph being passed off as something else.
+ *     See `docs/demo-image-sources.md` and `demo-image-credits.ts`.
+ *
+ * PHOTOGRAPHY
+ *
+ * The eight listings below carry real photographs from Wikimedia Commons, one
+ * coherent donor vehicle per listing (so an interior frame is never from a
+ * different car than the exterior frames beside it). Licences range from CC BY
+ * 3.0 to CC BY-SA 4.0 and each is recorded, with its author and source page, in
+ * `demo-image-credits.ts` — which is what the attribution lines on the cards,
+ * the detail galleries and the hero are rendered from.
+ *
+ * A listing with no correctly-licensed photograph of the right model and
+ * generation shows the honest "Photography pending" state. It never borrows
+ * another vehicle's picture, and never falls back to an illustration.
  *
  * Removal before production: `supabase/scripts/remove_demo_data.sql`
  * plus setting DEMO_DATA=false (see README "Removing demo data").
@@ -34,38 +50,31 @@ export const DEMO_VEHICLE_IDS = {
 } as const;
 
 /**
- * Demo vehicles deliberately carry NO imagery.
+ * Photography for a demonstration listing.
  *
- * The JPEGs that used to live in `public/demo/vehicles/` were named after this
- * fleet but did not depict it. Opening every file showed they were generic
- * stock photographs of other vehicles — `lexus-rx-exterior.jpg` was a
- * Lamborghini, `mercedes-c300-exterior.jpg` a BMW M4, `range-rover-sport-
- * exterior.jpg` an Audi A3, `land-cruiser-exterior.jpg` a Ford — and every
- * "-interior.jpg" was an exterior shot, with six of the eight shared across
- * vehicles (identical checksums).
- *
- * Shipping a Lamborghini on a "Lexus RX 350" listing is a misrepresentation of
- * the goods, so the imagery was withdrawn from the database and from `public/`
- * rather than reordered. Returning an empty list here keeps the prototype
- * fallback and `npm run db:seed-demo` consistent with that, so neither path can
- * reintroduce a mismatched photograph.
- *
- * Photography is attached per vehicle through the existing admin upload flow
- * (Admin -> Inventory -> [vehicle] -> Images), which stores the row against
- * that vehicle id. Vehicles without photographs render an honest
- * "photography pending" state instead of a substitute image.
+ * `display_order` is the order the gallery presents, so index 0 is both the
+ * gallery's first frame and the card's cover image. `id` is derived from the
+ * path: the database seeder replaces it with a UUID when it writes the rows, so
+ * the only requirement here is a stable, human-readable identifier.
  */
-const NO_IMAGERY: PublicVehicle["images"] = [];
+function demoImages(...paths: readonly string[]): PublicVehicle["images"] {
+  return paths.map((storage_path, index) => ({
+    id: `demo-image-${storage_path.replace(/^\/demo\/vehicles\//, "").replace(/\//g, "-")}`,
+    storage_path,
+    display_order: index,
+    is_cover: index === 0,
+  }));
+}
 
 export const DEMO_VEHICLES: PublicVehicle[] = [
   {
     id: DEMO_VEHICLE_IDS.mercedesGle,
-    slug: "demo-mercedes-benz-gle-450-2024",
+    slug: "demo-mercedes-benz-gle-450-2019",
     brand: "Mercedes-Benz",
     model: "GLE 450",
-    trim: "4MATIC AMG Line",
-    year: 2024,
-    exterior_color: "Obsidian Black Metallic",
+    trim: "AMG Line Premium+ 4MATIC",
+    year: 2019,
+    exterior_color: "Blue",
     interior_color: "Macchiato Beige / Black Nappa",
     mileage: 6200,
     features: [
@@ -80,7 +89,10 @@ export const DEMO_VEHICLES: PublicVehicle[] = [
     customer_price_kobo: 71_000_000_00,
     public_arrival_note:
       "DEMO RECORD · Representative inventory. Cleared and ready for inspection at Victoria Island showroom.",
-    images: NO_IMAGERY,
+    images: demoImages(
+      "/demo/vehicles/mercedes-gle/mercedes-gle-exterior-front.jpg",
+      "/demo/vehicles/mercedes-gle/mercedes-gle-exterior-rear.jpg"
+    ),
   },
   {
     id: DEMO_VEHICLE_IDS.bmwX5,
@@ -104,30 +116,37 @@ export const DEMO_VEHICLES: PublicVehicle[] = [
     customer_price_kobo: 54_000_000_00,
     public_arrival_note:
       "DEMO RECORD · Representative inventory. Inspected before shipment; Lagos customs documentation verified.",
-    images: NO_IMAGERY,
+    images: demoImages(
+      "/demo/vehicles/bmw-x5/bmw-x5-exterior-01.jpg",
+      "/demo/vehicles/bmw-x5/bmw-x5-exterior-02.jpg",
+      "/demo/vehicles/bmw-x5/bmw-x5-exterior-03.jpg"
+    ),
   },
   {
     id: DEMO_VEHICLE_IDS.lexusRx,
-    slug: "demo-lexus-rx-350-2024",
+    slug: "demo-lexus-rx-350-2023",
     brand: "Lexus",
     model: "RX 350",
-    trim: "F SPORT Handling AWD",
-    year: 2024,
-    exterior_color: "Sonic Titanium",
-    interior_color: "Circuit Red NuLuxe",
+    trim: "Premium Plus AWD",
+    year: 2023,
+    exterior_color: "Matador Red Mica",
+    interior_color: "Black Leather",
     mileage: 8900,
     features: [
       "Lexus Safety System+ 3.0",
       "Mark Levinson® 21-speaker PurePlay sound",
       "14-inch touchscreen multimedia display",
-      "Adaptive Variable Suspension (AVS)",
+      "Panoramic glass moonroof",
       "Color head-up display",
       "Triple-beam ultra-compact LED headlamps",
     ],
     status: "available",
     customer_price_kobo: 60_000_000_00,
     public_arrival_note: null,
-    images: NO_IMAGERY,
+    images: demoImages(
+      "/demo/vehicles/lexus-rx/lexus-rx-exterior-front.jpg",
+      "/demo/vehicles/lexus-rx/lexus-rx-exterior-rear.jpg"
+    ),
   },
   {
     id: DEMO_VEHICLE_IDS.rangeRoverSport,
@@ -136,7 +155,7 @@ export const DEMO_VEHICLES: PublicVehicle[] = [
     model: "Sport",
     trim: "Dynamic SE P400",
     year: 2023,
-    exterior_color: "Santorini Black",
+    exterior_color: "Fuji White",
     interior_color: "Ebony / Light Cloud Semi-Aniline",
     mileage: 14200,
     features: [
@@ -151,17 +170,20 @@ export const DEMO_VEHICLES: PublicVehicle[] = [
     customer_price_kobo: 104_000_000_00,
     public_arrival_note:
       "DEMO RECORD · Representative inventory. Direct UK spec, fully duty-paid with transparent doorstep pricing.",
-    images: NO_IMAGERY,
+    images: demoImages(
+      "/demo/vehicles/range-rover-sport/range-rover-sport-exterior-front.jpg",
+      "/demo/vehicles/range-rover-sport/range-rover-sport-exterior-rear.jpg"
+    ),
   },
   {
     id: DEMO_VEHICLE_IDS.landCruiser,
-    slug: "demo-toyota-land-cruiser-vxr-2024",
+    slug: "demo-toyota-land-cruiser-zx-2021",
     brand: "Toyota",
     model: "Land Cruiser",
-    trim: "LC300 VXR Twin-Turbo V6",
-    year: 2024,
-    exterior_color: "Precious White Pearl",
-    interior_color: "Neutral Beige Semi-Aniline Leather",
+    trim: "LC300 ZX 3.4 Twin-Turbo V6",
+    year: 2021,
+    exterior_color: "Silver",
+    interior_color: "Black Leather",
     mileage: 4300,
     features: [
       "Electronic Kinetic Dynamic Suspension (E-KDSS)",
@@ -175,16 +197,20 @@ export const DEMO_VEHICLES: PublicVehicle[] = [
     customer_price_kobo: 145_000_000_00,
     public_arrival_note:
       "DEMO RECORD · Representative inventory. Currently in transit; tracking updates provided through vessel arrival.",
-    images: NO_IMAGERY,
+    images: demoImages(
+      "/demo/vehicles/toyota-land-cruiser/toyota-land-cruiser-exterior-front.jpg",
+      "/demo/vehicles/toyota-land-cruiser/toyota-land-cruiser-exterior-rear.jpg",
+      "/demo/vehicles/toyota-land-cruiser/toyota-land-cruiser-interior.jpg"
+    ),
   },
   {
     id: DEMO_VEHICLE_IDS.mercedesC300,
-    slug: "demo-mercedes-benz-c300-2022",
+    slug: "demo-mercedes-benz-c300d-2022",
     brand: "Mercedes-Benz",
-    model: "C300",
-    trim: "AMG Line Premium Plus",
+    model: "C 300 d",
+    trim: "AMG Line",
     year: 2022,
-    exterior_color: "Mojave Silver Metallic",
+    exterior_color: "White",
     interior_color: "Sienna Brown Leather",
     mileage: 28400,
     features: [
@@ -199,16 +225,20 @@ export const DEMO_VEHICLES: PublicVehicle[] = [
     customer_price_kobo: 36_500_000_00,
     public_arrival_note:
       "DEMO RECORD · Representative inventory. Allocated and currently undergoing ocean transit to Lagos.",
-    images: NO_IMAGERY,
+    images: demoImages(
+      "/demo/vehicles/mercedes-c300/mercedes-c300-exterior-front.jpg",
+      "/demo/vehicles/mercedes-c300/mercedes-c300-exterior-rear.jpg",
+      "/demo/vehicles/mercedes-c300/mercedes-c300-exterior-rear-2.jpg"
+    ),
   },
   {
     id: DEMO_VEHICLE_IDS.porscheCayenne,
-    slug: "demo-porsche-cayenne-2023",
+    slug: "demo-porsche-cayenne-s-2018",
     brand: "Porsche",
     model: "Cayenne",
-    trim: "Base AWD Sport Chrono",
-    year: 2023,
-    exterior_color: "Crayon / Chalk Grey",
+    trim: "S AWD",
+    year: 2018,
+    exterior_color: "Black",
     interior_color: "Black / Bordeaux Red Two-Tone",
     mileage: 16100,
     features: [
@@ -223,16 +253,20 @@ export const DEMO_VEHICLES: PublicVehicle[] = [
     customer_price_kobo: 91_000_000_00,
     public_arrival_note:
       "DEMO RECORD · Representative inventory. Cleared and delivered to client specification earlier this quarter.",
-    images: NO_IMAGERY,
+    images: demoImages(
+      "/demo/vehicles/porsche-cayenne/porsche-cayenne-exterior-front.jpg",
+      "/demo/vehicles/porsche-cayenne/porsche-cayenne-exterior-rear.jpg",
+      "/demo/vehicles/porsche-cayenne/porsche-cayenne-interior.jpg"
+    ),
   },
   {
     id: DEMO_VEHICLE_IDS.bmw7Series,
-    slug: "demo-bmw-740i-2024",
+    slug: "demo-bmw-740d-xdrive-2024",
     brand: "BMW",
     model: "7 Series",
-    trim: "740i M Sport",
+    trim: "740d xDrive Excellence",
     year: 2024,
-    exterior_color: "Carbon Black Metallic",
+    exterior_color: "Black",
     interior_color: "Smoke White BMW Individual Merino",
     mileage: 5100,
     features: [
@@ -247,7 +281,10 @@ export const DEMO_VEHICLES: PublicVehicle[] = [
     customer_price_kobo: 122_000_000_00,
     public_arrival_note:
       "DEMO RECORD · Representative inventory. Sourced, imported, inspected and delivered through our flagship white-glove service.",
-    images: NO_IMAGERY,
+    images: demoImages(
+      "/demo/vehicles/bmw-7-series/bmw-7-series-exterior-front.jpg",
+      "/demo/vehicles/bmw-7-series/bmw-7-series-exterior-rear.jpg"
+    ),
   },
 ];
 

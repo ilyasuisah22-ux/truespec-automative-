@@ -7,8 +7,7 @@ import { WhatsappCta } from "@/components/site/whatsapp-cta";
 import { CallCta } from "@/components/site/call-cta";
 import { coverImage, type PublicVehicle } from "@/lib/inventory";
 import { PhotoPending } from "@/components/site/photo-pending";
-import { VehicleIllustration } from "@/components/site/vehicle-illustration";
-import { hasVehicleArtwork } from "@/lib/demo/vehicle-artwork";
+import { demoImageAttribution } from "@/lib/demo/demo-image-credits";
 import { displayCustomerPrice, formatMileage, vehicleTitle } from "@/lib/inventory";
 import { resolveImageUrl } from "@/lib/images";
 import { vehicleEnquiryMessage } from "@/lib/whatsapp";
@@ -17,6 +16,12 @@ import { vehicleEnquiryMessage } from "@/lib/whatsapp";
  * Public inventory card. Shows ONLY customer-facing fields — never financial
  * data. Enquiry actions reuse the configured business number and pre-fill the
  * WhatsApp message with the exact vehicle description.
+ *
+ * IMAGERY: a real photograph or an honest "photography pending" tile. There is
+ * no illustration fallback any more: the demo fleet's artwork was replaced by
+ * licensed photography (see `demo-image-credits.ts`). Where the photograph came
+ * from Wikimedia Commons the card carries its attribution, because the licences
+ * we rely on (CC BY / CC BY-SA) require it.
  */
 export function VehicleCard({
   vehicle,
@@ -28,6 +33,7 @@ export function VehicleCard({
   const cover = coverImage(vehicle);
   const href = `/inventory/${vehicle.slug}`;
   const title = vehicleTitle(vehicle);
+  const attribution = cover ? demoImageAttribution(cover.storage_path) : null;
 
   return (
     <Card className="vehicle-card-hover flex h-full flex-col overflow-hidden group">
@@ -46,15 +52,15 @@ export function VehicleCard({
               className="vehicle-card-image object-cover"
               loading="lazy"
             />
-          ) : hasVehicleArtwork(vehicle.id) ? (
-            /* Illustrative artwork, scoped to THIS vehicle by id. Real uploaded
-               photography above always takes precedence. The artwork carries its
-               own "Illustrative" badge, so a card is never mistaken for a
-               photograph of the car being sold. */
-            <VehicleIllustration vehicleId={vehicle.id} vehicleName={title} />
           ) : (
             <PhotoPending compact />
           )}
+
+          {attribution ? (
+            <p className="absolute inset-x-0 bottom-0 bg-graphite-950/70 px-2 py-1 text-center text-[0.6rem] leading-tight text-ink-400">
+              {attribution}
+            </p>
+          ) : null}
 
           <div className="absolute inset-0 bg-gradient-to-t from-scrim/80 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 

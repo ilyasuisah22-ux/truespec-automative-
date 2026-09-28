@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import * as React from "react";
 import Image from "next/image";
@@ -6,33 +6,36 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { resolveImageUrl } from "@/lib/images";
 import { PhotoPending } from "@/components/site/photo-pending";
-import {
-  IllustrativeNotice,
-  VehicleIllustration,
-} from "@/components/site/vehicle-illustration";
-import { ARTWORK_VIEWS, hasVehicleArtwork } from "@/lib/demo/vehicle-artwork";
+import { demoImageCredit } from "@/lib/demo/demo-image-credits";
 import type { PublicImage } from "@/lib/serializers/public-vehicle";
-
-type ArtworkViewName = (typeof ARTWORK_VIEWS)[number];
 
 /** A horizontal swipe past this distance counts as "previous / next". */
 const SWIPE_THRESHOLD_PX = 48;
 
 /**
- * Premium accessible vehicle gallery.
+ * Accessible vehicle gallery — real photographs only.
  *
- * SCOPE â€” THIS COMPONENT CANNOT MIX VEHICLES
+ * SCOPE — THIS COMPONENT CANNOT MIX VEHICLES
  *
  * The `images` prop is scoped to ONE vehicle by construction: the data layer
  * groups `vehicle_images` rows by `vehicle_id`, so this component cannot show a
- * photograph belonging to a different car. Illustrative artwork is resolved
- * from the SAME `vehicleId`, and only the eight demonstration vehicles are
- * registered, so artwork can never leak onto a real customer car.
+ * photograph belonging to a different car. The demonstration fleet goes further
+ * and uses one donor shoot per listing (see `demo-image-credits.ts`), so an
+ * interior frame is never from a different car than the exterior frames beside
+ * it.
  *
- * REAL PHOTOGRAPHY ALWAYS WINS
+ * PHOTOGRAPHS, NOT ILLUSTRATIONS
  *
- * When a vehicle has uploaded images, those are used and the artwork is never
- * consulted. Artwork is a fallback for the demonstration fleet only.
+ * There is no artwork fallback. A listing with no photograph renders the honest
+ * "photography pending" tile, because drawing a car the customer cannot see is
+ * worse than admitting the picture does not exist yet.
+ *
+ * ATTRIBUTION
+ *
+ * A frame sourced from Wikimedia Commons renders its author and licence beneath
+ * the main frame, which is what CC BY and CC BY-SA require. A photograph the
+ * owner uploaded through the admin flow has no credit entry and therefore
+ * renders no credit line — never somebody else's.
  *
  * Interaction support:
  *  - Thumbnails are real buttons with aria-labels and aria-current state.
@@ -41,16 +44,7 @@ const SWIPE_THRESHOLD_PX = 48;
  *  - Touch users can swipe the main frame, or scroll the thumbnail strip.
  *  - Announced politely via aria-live for screen readers.
  */
-export function VehicleGallery({
-  images,
-  title,
-  vehicleId,
-}: {
-  images: PublicImage[];
-  title: string;
-  /** Scopes the illustrative fallback to this exact vehicle. */
-  vehicleId: string;
-}) {
+export function VehicleGallery({ images, title }: { images: PublicImage[]; title: string }) {
   // `rawIndex` is what the user navigated to; `index` is the safe value actually
   // used to render. Deriving the clamp here (rather than correcting it in an
   // effect) means a shorter frame list can never leave us pointing at something
@@ -62,12 +56,10 @@ export function VehicleGallery({
   const [rawIndex, setRawIndex] = React.useState(0);
   const [since, setSince] = React.useState(0);
 
-  // Real photographs if they exist, otherwise this vehicle's own illustrations.
-  const useArtwork = images.length === 0 && hasVehicleArtwork(vehicleId);
-  const frames: readonly (string | PublicImage)[] = useArtwork ? ARTWORK_VIEWS : images;
-
-  const total = frames.length;
+  const total = images.length;
   const index = total === 0 ? 0 : since - Math.floor((since - rawIndex) / total);
+  const active: PublicImage | undefined = total === 0 ? undefined : images[index];
+  const credit = active ? demoImageCredit(active.storage_path) : undefined;
 
   const go = React.useCallback(
     (next: number) => {
@@ -111,7 +103,7 @@ export function VehicleGallery({
     go(delta < 0 ? index + 1 : index - 1);
   }
 
-  if (total === 0) {
+  if (total === 0 || !active) {
     return (
       <div className="aspect-[3/2] w-full overflow-hidden rounded-lg border border-graphite-700 lg:aspect-[16/10]">
         <PhotoPending />
@@ -124,35 +116,25 @@ export function VehicleGallery({
       <div
         role="group"
         aria-roledescription="image gallery"
-        aria-label={`${title} ${useArtwork ? "illustrations" : "photographs"}`}
+        aria-label={`${title} photographs`}
         onKeyDown={onKeyDown}
       >
-        {/* Main frame. A fixed aspect frame plus object-cover / slice means the
-            image is cropped to fit â€” never stretched or distorted. */}
+        {/* Main frame. A fixed aspect frame plus object-cover means the
+            photograph is cropped to fit — never stretched or distorted. */}
         <div
           className="relative aspect-[3/2] w-full overflow-hidden rounded-lg border border-graphite-700 bg-graphite-850 lg:aspect-[16/10]"
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
         >
-          {useArtwork ? (
-            <VehicleIllustration
-              key={`${vehicleId}-${frames[index]}`}
-              vehicleId={vehicleId}
-              view={frames[index] as ArtworkViewName}
-              vehicleName={title}
-              showCaption
-            />
-          ) : (
-            <Image
-              key={(images[index] as PublicImage).id}
-              src={resolveImageUrl((images[index] as PublicImage).storage_path)}
-              alt={`${title} â€” photograph ${index + 1} of ${total}`}
-              fill
-              priority={index === 0}
-              sizes="(max-width: 1024px) 100vw, 60vw"
-              className="gallery-fade-in object-cover"
-            />
-          )}
+          <Image
+            key={active.id}
+            src={resolveImageUrl(active.storage_path)}
+            alt={`${title} — photograph ${index + 1} of ${total}`}
+            fill
+            priority={index === 0}
+            sizes="(max-width: 1024px) 100vw, 60vw"
+            className="gallery-fade-in object-cover"
+          />
 
           {/* Image gradient overlay for depth */}
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-scrim/20 via-transparent to-transparent" />
@@ -187,11 +169,38 @@ export function VehicleGallery({
           View {index + 1} of {total}
         </p>
 
+        {/* Attribution, required by the CC BY / CC BY-SA licences of the
+            demonstration photographs. A photograph the owner uploaded through
+            the admin flow has no credit entry, so nothing renders for it. */}
+        {credit ? (
+          <p className="text-[0.65rem] leading-relaxed text-ink-500">
+            Photograph:{" "}
+            <a
+              href={credit.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 transition-colors hover:text-ink-300"
+            >
+              {credit.author}
+            </a>{" "}
+            ·{" "}
+            <a
+              href={credit.licenceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 transition-colors hover:text-ink-300"
+            >
+              {credit.licence}
+            </a>
+            {" · Wikimedia Commons"}
+          </p>
+        ) : null}
+
         {/* Thumbnail strip */}
         {total > 1 ? (
           <ul className="scrollbar-hide flex snap-x gap-2.5 overflow-x-auto pb-1">
-            {frames.map((frame, i) => (
-              <li key={String(frame)} className="snap-start">
+            {images.map((image, i) => (
+              <li key={image.id} className="snap-start">
                 <button
                   type="button"
                   onClick={() => go(i)}
@@ -204,30 +213,20 @@ export function VehicleGallery({
                       : "border-graphite-700 opacity-70 hover:opacity-100"
                   )}
                 >
-                  {useArtwork ? (
-                    <VehicleIllustration
-                      vehicleId={vehicleId}
-                      view={frame as ArtworkViewName}
-                      vehicleName={title}
-                      showBadge={false}
-                    />
-                  ) : (
-                    <Image
-                      src={resolveImageUrl((frame as PublicImage).storage_path)}
-                      alt=""
-                      fill
-                      sizes="96px"
-                      className="object-cover"
-                    />
-                  )}
+                  <Image
+                    src={resolveImageUrl(image.storage_path)}
+                    alt=""
+                    fill
+                    sizes="96px"
+                    className="object-cover"
+                  />
                 </button>
               </li>
             ))}
           </ul>
         ) : null}
       </div>
-
-      {useArtwork ? <IllustrativeNotice /> : null}
     </div>
   );
 }
+

@@ -41,39 +41,36 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## Demo / prototype inventory
 
-The repository ships a **prototype fleet of 8 vehicles** — but deliberately
-**no photographs**. The sample images that used to sit in
-`public/demo/vehicles/` were named after this fleet and did not depict it.
-Opening every file showed they were generic stock photographs of other
-vehicles:
+The repository ships a **prototype fleet of 8 vehicles with 20 real licensed
+photographs** in `public/demo/vehicles/` — one coherent donor vehicle per
+listing (front/rear angles plus interiors where the donor shoot provides one),
+each with its author and licence recorded in
+`src/lib/demo/demo-image-credits.ts` and attributed on the cards, galleries
+and hero. Full provenance (Commons source pages, authors, licences, what was
+checked): `docs/demo-image-sources.md`.
 
-| File | What it actually showed |
-| --- | --- |
-| `lexus-rx-exterior.jpg` | a Lamborghini Huracan |
-| `mercedes-c300-exterior.jpg` | a BMW M4 |
-| `range-rover-sport-exterior.jpg` | an Audi A3 Sportback |
-| `land-cruiser-exterior.jpg` | a Ford Expedition |
-| `porsche-cayenne-exterior.jpg` | a Porsche Panamera |
-| `bmw-7-series-exterior.jpg` | a BMW M5 |
-| `bmw-x5-exterior.jpg` | a BMW M4 |
-| `mercedes-gle-exterior.jpg` | a Mercedes-AMG GT |
-
-Every `-interior.jpg` was an exterior shot rather than an interior, and six of
-the eight were shared between vehicles (identical checksums) — so one Audi
-frame appeared on the BMW 7 Series, the BMW X5 *and* the Toyota Land Cruiser.
-
-Advertising a Lamborghini on a "Lexus RX 350" listing is a misrepresentation of
-the goods, so the files were deleted and the 16 matching `vehicle_images` rows
-were withdrawn from the database:
+This replaced an earlier set of sample images that were named after the fleet
+but did not depict it (a Lamborghini on the "Lexus RX 350" listing, an Audi A3
+on the "Range Rover Sport", and so on — with six of the eight shared between
+vehicles). Those files and their `vehicle_images` rows were withdrawn because
+presenting them as the listed cars is a misrepresentation of the goods:
 
 ```
 npm run db:remove-demo-images
 ```
 
-The vehicles themselves remain, showing an honest **"Photography pending"**
-state. Attach real per-vehicle photographs through
-`Admin → Inventory → [vehicle] → Images`. A listing never falls back to another
-vehicle's image.
+Staying honest is a design rule, not a one-off clean-up:
+
+```
+npx tsx scripts/verify-demo-photography.ts
+```
+
+That check fails on a listing referencing a missing file, an uncredited file on
+disk, or the same photograph used twice. A vehicle with no correctly-licensed
+photograph of the right model and generation renders the honest
+**"Photography pending"** state instead — it never borrows another vehicle's
+image, and never falls back to an illustration. Real per-vehicle photographs
+for actual customer cars attach through `Admin → Inventory → [vehicle] → Images`.
 
 The vehicle records live in `src/lib/demo/demo-data.ts` (public fields) and
 `src/lib/demo/demo-records.ts` (invented cost figures), which are the single

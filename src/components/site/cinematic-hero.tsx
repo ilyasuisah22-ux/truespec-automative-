@@ -1,18 +1,23 @@
 ﻿"use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { VehicleIllustration } from "@/components/site/vehicle-illustration";
 import { ButtonLink } from "@/components/ui/button";
+import { DEMO_VEHICLES } from "@/lib/demo/demo-data";
+import { demoImageCredit } from "@/lib/demo/demo-image-credits";
+import { coverImage } from "@/lib/inventory";
 import { DEFAULT_GENERAL_MESSAGE, buildWhatsappLink } from "@/lib/whatsapp";
 
 export interface HeroSlide {
   /**
    * Vehicle this slide showcases, as a demonstration vehicle id. The hero draws
-   * that vehicle's own illustration, so the frame and the `featured` label are
-   * derived from the SAME record and can never disagree.
+   * that vehicle's own real photograph (its gallery cover image), so the frame
+   * and the `featured` label are derived from the SAME record and can never
+   * disagree. A slide whose vehicle has no photograph renders a plain panel,
+   * never an illustration or another car's picture.
    */
   vehicleId: string;
   eyebrow: string;
@@ -21,7 +26,7 @@ export interface HeroSlide {
   /** Rendered on line two in the metallic gold gradient. */
   headlineAccent: string;
   body: string;
-  /** Vehicle the slide showcases â€” surfaced as a pill so it reads as a listing. */
+  /** Vehicle the slide showcases — surfaced as a pill so it reads as a listing. */
   featured?: string;
 }
 
@@ -58,13 +63,16 @@ function readMotionPreferenceOnServer() {
 /**
  * Cinematic showroom hero.
  *
- * - Frames crossfade behind a copy block with an 18s Ken Burns drift, so stills
+ * - Frames are each slide's own real photograph and rotate every 2 seconds,
+ *   crossfading behind a copy block with an 18s Ken Burns drift, so stills
  *   feel filmed rather than pasted.
  * - Rotation is driven by `setInterval` and paused while the document is
  *   hidden, so a backgrounded tab never accumulates work.
  * - The first frame is server-rendered, so the hero is complete without JS.
  * - `prefers-reduced-motion: reduce` disables both the rotation and the drift
  *   and leaves a single static frame with working frame controls.
+ * - Attributions for the Commons photographs appear as a permanent one-line
+ *   credit, as the CC BY / CC BY-SA licences require.
  */
 export function CinematicHero({
   slides,
@@ -133,32 +141,67 @@ export function CinematicHero({
       onBlurCapture={() => setPaused(false)}
     >
       <div className="absolute inset-0 -z-10">
-        {slides.map((slide, i) => (
-          <div
-            key={slide.vehicleId}
-            aria-hidden
+        {slides.map((slide, i) => {
+          /* The frame is the SLIDE'S OWN vehicle photograph — the demo
+             record's cover image, keyed by vehicle id — so the copy can never
+             claim one marque while showing another. A slide with no photograph
+             renders a plain panel: never an illustration, never another car's
+             picture. */
+          const record = DEMO_VEHICLES.find((v) => v.id === slide.vehicleId);
+          const photo = record ? coverImage(record) : undefined;
+          const credit = photo ? demoImageCredit(photo.storage_path) : undefined;
+          return (
+            <div
+              key={slide.vehicleId}
+              aria-hidden
               className={cn(
                 "absolute inset-0 transition-opacity duration-1000 ease-out",
                 i === index ? "opacity-100" : "opacity-0"
               )}
-          >
-            {/* The frame is the SLIDE'S OWN vehicle artwork, keyed by vehicle id,
-                so the copy can never claim one marque while showing another. */}
-            <div
-              className={cn(
-                "h-full w-full",
-                i === index && !reducedMotion ? "ken-burns" : undefined
-              )}
             >
-              <VehicleIllustration
-                vehicleId={slide.vehicleId}
-                view="three-quarter"
-                vehicleName={slide.featured ?? "Featured vehicle"}
-                showBadge={false}
-              />
+              <div
+                className={cn(
+                  "relative h-full w-full",
+                  i === index && !reducedMotion ? "ken-burns" : undefined
+                )}
+              >
+                {photo ? (
+                  <Image
+                    src={photo.storage_path}
+                    alt=""
+                    fill
+                    priority={i === 0}
+                    sizes="100vw"
+                    className="object-cover"
+                  />
+                ) : null}
+              </div>
+              {/* Per-frame attribution, shown steadily so it does not strobe
+                  with the 2s rotation. Required by the CC BY / CC BY-SA
+                  licences of the demonstration photographs. */}
+              {i === index && credit ? (
+                <p className="absolute bottom-3 left-3 z-10 rounded-sm bg-graphite-950/70 px-2.5 py-1 text-[0.6rem] tracking-wide text-ink-400 backdrop-blur-sm">
+                  Photograph:{" "}
+                  <a
+                    href={credit.sourceUrl}
+                    tabIndex={-1}
+                    className="underline underline-offset-2"
+                  >
+                    {credit.author}
+                  </a>{" "}
+                  ·{" "}
+                  <a
+                    href={credit.licenceUrl}
+                    tabIndex={-1}
+                    className="underline underline-offset-2"
+                  >
+                    {credit.licence}
+                  </a>
+                </p>
+              ) : null}
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {/* Two-stage grading so copy stays legible over any frame: a flat
             scrim normalises the photograph's brightness, the theme-coloured
@@ -167,13 +210,6 @@ export function CinematicHero({
         <div className="absolute inset-0 bg-scrim/20" />
         <div className="absolute inset-0 hero-gradient" />
         <div className="absolute inset-x-0 bottom-0 h-2/5 scrim-gradient opacity-60" />
-
-        {/* Permanent disclosure. The hero suppresses the per-frame badge (it
-            would strobe at a 2s cadence), so the statement is made once here,
-            where it stays on screen for the whole rotation. */}
-        <p className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-sm bg-graphite-950/70 px-2.5 py-1 text-center text-[0.6rem] uppercase tracking-[0.16em] text-ink-400 backdrop-blur-sm">
-          Illustrative artwork · not photography
-        </p>
       </div>
 
       {/* Compact footprint: the hero sets the tone and hands the visitor to the

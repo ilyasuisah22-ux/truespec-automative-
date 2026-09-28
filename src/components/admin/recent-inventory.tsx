@@ -2,8 +2,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { formatNaira } from "@/lib/money";
 import { formatMileage, vehicleTitle } from "@/lib/inventory";
-import { VehicleIllustration } from "@/components/site/vehicle-illustration";
-import { hasVehicleArtwork } from "@/lib/demo/vehicle-artwork";
 import { PhotoPending } from "@/components/site/photo-pending";
 import { resolveImageUrl } from "@/lib/images";
 import type { AdminVehicle } from "@/lib/data/admin";
@@ -16,10 +14,9 @@ import type { AdminVehicle } from "@/lib/data/admin";
  * and internal notes are never passed in, so this component is structurally
  * incapable of rendering them. Price shown is the public customer price.
  *
- * Imagery mirrors the public showroom exactly: a real uploaded photograph is
- * shown when one exists, otherwise the vehicle's own illustration, otherwise an
- * honest "photography pending" tile. A thumbnail is never borrowed from a
- * different vehicle.
+ * Imagery mirrors the public showroom exactly: a real photograph is shown when
+ * one exists, otherwise an honest "photography pending" tile. A thumbnail is
+ * never borrowed from a different vehicle, and never an illustration.
  */
 export function RecentInventory({ vehicles }: { vehicles: AdminVehicle[] }) {
   const recent = [...vehicles]
@@ -51,12 +48,6 @@ export function RecentInventory({ vehicles }: { vehicles: AdminVehicle[] }) {
                     sizes="56px"
                     className="object-cover"
                   />
-                ) : hasVehicleArtwork(item.vehicle.id) ? (
-                  <VehicleIllustration
-                    vehicleId={item.vehicle.id}
-                    vehicleName={title}
-                    showBadge={false}
-                  />
                 ) : (
                   <PhotoPending compact />
                 )}
@@ -68,11 +59,6 @@ export function RecentInventory({ vehicles }: { vehicles: AdminVehicle[] }) {
                   {item.vehicle.year} &middot; {formatMileage(item.vehicle.mileage)} &middot;{" "}
                   {item.vehicle.exterior_color}
                 </p>
-                {!cover && hasVehicleArtwork(item.vehicle.id) ? (
-                  <p className="mt-0.5 text-[0.62rem] uppercase tracking-wider text-gold-400/80">
-                    Illustrative thumbnail
-                  </p>
-                ) : null}
               </div>
               <div className="shrink-0 text-right">
                 <p className="text-sm tabular-nums text-gold-300">

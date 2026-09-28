@@ -5,9 +5,13 @@
 -- Every vehicle, price, mileage and cost below is invented for the audition
 -- demo. Remove before production: supabase/scripts/remove_demo_data.sql
 --
--- Image paths point at the sample photography shipped in /public/demo/vehicles,
--- which is served as static public assets (one exterior and one interior frame
--- per vehicle). Replace with real stock photographs via the admin upload flow.
+-- The photographs are REAL licensed photographs shipped in
+-- /public/demo/vehicles (<vehicle>/<frame>.jpg, 1280px JPEGs), with one
+-- coherent donor vehicle per listing. Each description field a visitor can
+-- check against a photograph (model, trim, year, exterior colour) describes
+-- the vehicle that was actually photographed. Full provenance (source pages,
+-- authors, licences): docs/demo-image-sources.md and
+-- src/lib/demo/demo-image-credits.ts.
 --
 -- These slugs/ids mirror src/lib/demo/demo-data.ts exactly, so a database-seeded
 -- deployment and the in-repo DEMO_DATA fallback describe the same inventory.
@@ -19,9 +23,9 @@ insert into public.vehicles
 values
   (
     'd0000000-0000-4000-8000-000000000001',
-    'demo-mercedes-benz-gle-450-2024',
-    'Mercedes-Benz', 'GLE 450', '4MATIC AMG Line', 2024,
-    'Obsidian Black Metallic', 'Macchiato Beige / Black Nappa', 6200,
+    'demo-mercedes-benz-gle-450-2019',
+    'Mercedes-Benz', 'GLE 450', 'AMG Line Premium+ 4MATIC', 2019,
+    'Blue', 'Macchiato Beige / Black Nappa', 6200,
     array['Panoramic sliding sunroof','Burmester Surround Sound system','Airmatic air suspension with adaptive damping','Active Distance Assist DISTRONIC','Multibeam LED intelligent lighting','21-inch AMG multi-spoke alloy wheels'],
     'available', 7100000000,
     'DEMO RECORD - Representative inventory. Cleared and ready for inspection at Victoria Island showroom.'
@@ -37,10 +41,10 @@ values
   ),
   (
     'd0000000-0000-4000-8000-000000000003',
-    'demo-lexus-rx-350-2024',
-    'Lexus', 'RX 350', 'F SPORT Handling AWD', 2024,
-    'Sonic Titanium', 'Circuit Red NuLuxe', 8900,
-    array['Lexus Safety System+ 3.0','Mark Levinson 21-speaker PurePlay sound','14-inch touchscreen multimedia display','Adaptive Variable Suspension (AVS)','Color head-up display','Triple-beam ultra-compact LED headlamps'],
+    'demo-lexus-rx-350-2023',
+    'Lexus', 'RX 350', 'Premium Plus AWD', 2023,
+    'Matador Red Mica', 'Black Leather', 8900,
+    array['Lexus Safety System+ 3.0','Mark Levinson 21-speaker PurePlay sound','14-inch touchscreen multimedia display','Panoramic glass moonroof','Color head-up display','Triple-beam ultra-compact LED headlamps'],
     'available', 6000000000,
     null
   ),
@@ -48,43 +52,43 @@ values
     'd0000000-0000-4000-8000-000000000004',
     'demo-range-rover-sport-dynamic-se-2023',
     'Range Rover', 'Sport', 'Dynamic SE P400', 2023,
-    'Santorini Black', 'Ebony / Light Cloud Semi-Aniline', 14200,
+    'Fuji White', 'Ebony / Light Cloud Semi-Aniline', 14200,
     array['Dynamic Air Suspension with switchable volume','Meridian 3D surround sound system','Pixel LED headlights with signature DRL','ClearSight interior rear view mirror','Deployable side access steps','23-inch Style 5135 gloss black wheels'],
     'available', 10400000000,
     'DEMO RECORD - Representative inventory. Direct UK spec, fully duty-paid with transparent doorstep pricing.'
   ),
   (
     'd0000000-0000-4000-8000-000000000005',
-    'demo-toyota-land-cruiser-vxr-2024',
-    'Toyota', 'Land Cruiser', 'LC300 VXR Twin-Turbo V6', 2024,
-    'Precious White Pearl', 'Neutral Beige Semi-Aniline Leather', 4300,
+    'demo-toyota-land-cruiser-zx-2021',
+    'Toyota', 'Land Cruiser', 'LC300 ZX 3.4 Twin-Turbo V6', 2021,
+    'Silver', 'Black Leather', 4300,
     array['Electronic Kinetic Dynamic Suspension (E-KDSS)','JBL 14-speaker premium reference audio','Rear dual 11.6-inch entertainment displays','Multi-terrain monitor with 3D under-floor view','Integrated center console cool box','Adaptive high-beam system'],
     'on_order', 14500000000,
     'DEMO RECORD - Representative inventory. Currently in transit; tracking updates provided through vessel arrival.'
   ),
   (
     'd0000000-0000-4000-8000-000000000006',
-    'demo-mercedes-benz-c300-2022',
-    'Mercedes-Benz', 'C300', 'AMG Line Premium Plus', 2022,
-    'Mojave Silver Metallic', 'Sienna Brown Leather', 28400,
+    'demo-mercedes-benz-c300d-2022',
+    'Mercedes-Benz', 'C 300 d', 'AMG Line', 2022,
+    'White', 'Sienna Brown Leather', 28400,
     array['AMG Line body styling and sport brakes','Panoramic tilting/sliding sunroof','Burmester 3D sound system','11.9-inch central portrait multimedia touchscreen','64-color ambient lighting system','19-inch AMG multi-spoke bi-color alloys'],
     'on_order', 3650000000,
     'DEMO RECORD - Representative inventory. Allocated and currently undergoing ocean transit to Lagos.'
   ),
   (
     'd0000000-0000-4000-8000-000000000007',
-    'demo-porsche-cayenne-2023',
-    'Porsche', 'Cayenne', 'Base AWD Sport Chrono', 2023,
-    'Crayon / Chalk Grey', 'Black / Bordeaux Red Two-Tone', 16100,
+    'demo-porsche-cayenne-s-2018',
+    'Porsche', 'Cayenne', 'S AWD', 2018,
+    'Black', 'Black / Bordeaux Red Two-Tone', 16100,
     array['Sport Chrono Package with mode switch','Adaptive air suspension with PASM','Panoramic roof system','BOSE Surround Sound system','LED-Matrix Design headlights with PDLS+','21-inch RS Spyder Design wheels'],
     'landed', 9100000000,
     'DEMO RECORD - Representative inventory. Cleared and delivered to client specification earlier this quarter.'
   ),
   (
     'd0000000-0000-4000-8000-000000000008',
-    'demo-bmw-740i-2024',
-    'BMW', '7 Series', '740i M Sport', 2024,
-    'Carbon Black Metallic', 'Smoke White BMW Individual Merino', 5100,
+    'demo-bmw-740d-xdrive-2024',
+    'BMW', '7 Series', '740d xDrive Excellence', 2024,
+    'Black', 'Smoke White BMW Individual Merino', 5100,
     array['31.3-inch BMW Theatre Screen in rear cabin','Bowers & Wilkins Diamond surround sound','Sky Lounge panoramic glass roof with LED patterns','Automatic doors with soft-close function','BMW Interaction Bar with ambient backlighting','Executive lounge seating with massage function'],
     'landed', 12200000000,
     'DEMO RECORD - Representative inventory. Sourced, imported, inspected and delivered through our flagship white-glove service.'
@@ -121,23 +125,40 @@ values
 on conflict (vehicle_id) do nothing;
 
 -- ---------------------------------------------------------------------------
--- DEMO image records: INTENTIONALLY OMITTED.
+-- DEMO image records: the real licensed photography in public/demo/vehicles.
 --
--- This seed used to insert two `vehicle_images` rows per demo vehicle pointing
--- at `public/demo/vehicles/<model>-{exterior,interior}.jpg`. Those files did not
--- depict the vehicles they were named after — `lexus-rx-exterior.jpg` held a
--- Lamborghini, `mercedes-c300-exterior.jpg` a BMW M4, `range-rover-sport-
--- exterior.jpg` an Audi A3, `land-cruiser-exterior.jpg` a Ford — and every
--- "-interior.jpg" was an exterior shot, six of the eight shared across
--- vehicles. Presenting those images as the listed car is a misrepresentation
--- of the goods, so the files were deleted and the rows withdrawn from the
--- database.
---
--- Demo vehicles therefore seed with no photography and render the honest
--- "photography pending" state. Attach real per-vehicle photographs through
--- Admin -> Inventory -> [vehicle] -> Images, or place files in the
--- `vehicle-images` Storage bucket and insert `vehicle_images` rows yourself.
+-- Each gallery is a single donor shoot, so an interior frame is never from a
+-- different car than the exterior frames beside it. Full provenance (source
+-- pages, authors, licences): docs/demo-image-sources.md and
+-- src/lib/demo/demo-image-credits.ts. These paths must stay in lockstep with
+-- src/lib/demo/demo-data.ts — the in-repo fallback and this seed describe the
+-- same inventory, and the seeder (`npm run db:seed-demo`) writes the same rows.
 -- ---------------------------------------------------------------------------
+insert into public.vehicle_images
+  (id, vehicle_id, storage_path, display_order, is_cover)
+values
+  (gen_random_uuid(), 'd0000000-0000-4000-8000-000000000001', '/demo/vehicles/mercedes-gle/mercedes-gle-exterior-front.jpg', 0, true),
+  (gen_random_uuid(), 'd0000000-0000-4000-8000-000000000001', '/demo/vehicles/mercedes-gle/mercedes-gle-exterior-rear.jpg', 1, false),
+  (gen_random_uuid(), 'd0000000-0000-4000-8000-000000000002', '/demo/vehicles/bmw-x5/bmw-x5-exterior-01.jpg', 0, true),
+  (gen_random_uuid(), 'd0000000-0000-4000-8000-000000000002', '/demo/vehicles/bmw-x5/bmw-x5-exterior-02.jpg', 1, false),
+  (gen_random_uuid(), 'd0000000-0000-4000-8000-000000000002', '/demo/vehicles/bmw-x5/bmw-x5-exterior-03.jpg', 2, false),
+  (gen_random_uuid(), 'd0000000-0000-4000-8000-000000000003', '/demo/vehicles/lexus-rx/lexus-rx-exterior-front.jpg', 0, true),
+  (gen_random_uuid(), 'd0000000-0000-4000-8000-000000000003', '/demo/vehicles/lexus-rx/lexus-rx-exterior-rear.jpg', 1, false),
+  (gen_random_uuid(), 'd0000000-0000-4000-8000-000000000004', '/demo/vehicles/range-rover-sport/range-rover-sport-exterior-front.jpg', 0, true),
+  (gen_random_uuid(), 'd0000000-0000-4000-8000-000000000004', '/demo/vehicles/range-rover-sport/range-rover-sport-exterior-rear.jpg', 1, false),
+  (gen_random_uuid(), 'd0000000-0000-4000-8000-000000000005', '/demo/vehicles/toyota-land-cruiser/toyota-land-cruiser-exterior-front.jpg', 0, true),
+  (gen_random_uuid(), 'd0000000-0000-4000-8000-000000000005', '/demo/vehicles/toyota-land-cruiser/toyota-land-cruiser-exterior-rear.jpg', 1, false),
+  (gen_random_uuid(), 'd0000000-0000-4000-8000-000000000005', '/demo/vehicles/toyota-land-cruiser/toyota-land-cruiser-interior.jpg', 2, false),
+  (gen_random_uuid(), 'd0000000-0000-4000-8000-000000000006', '/demo/vehicles/mercedes-c300/mercedes-c300-exterior-front.jpg', 0, true),
+  (gen_random_uuid(), 'd0000000-0000-4000-8000-000000000006', '/demo/vehicles/mercedes-c300/mercedes-c300-exterior-rear.jpg', 1, false),
+  (gen_random_uuid(), 'd0000000-0000-4000-8000-000000000006', '/demo/vehicles/mercedes-c300/mercedes-c300-exterior-rear-2.jpg', 2, false),
+  (gen_random_uuid(), 'd0000000-0000-4000-8000-000000000007', '/demo/vehicles/porsche-cayenne/porsche-cayenne-exterior-front.jpg', 0, true),
+  (gen_random_uuid(), 'd0000000-0000-4000-8000-000000000007', '/demo/vehicles/porsche-cayenne/porsche-cayenne-exterior-rear.jpg', 1, false),
+  (gen_random_uuid(), 'd0000000-0000-4000-8000-000000000007', '/demo/vehicles/porsche-cayenne/porsche-cayenne-interior.jpg', 2, false),
+  (gen_random_uuid(), 'd0000000-0000-4000-8000-000000000008', '/demo/vehicles/bmw-7-series/bmw-7-series-exterior-front.jpg', 0, true),
+  (gen_random_uuid(), 'd0000000-0000-4000-8000-000000000008', '/demo/vehicles/bmw-7-series/bmw-7-series-exterior-rear.jpg', 1, false)
+on conflict (id) do nothing;
+
 
 -- ---------------------------------------------------------------------------
 -- DEMO public settings. The WhatsApp number is a clearly-marked placeholder

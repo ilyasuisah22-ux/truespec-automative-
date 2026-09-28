@@ -82,7 +82,6 @@ export default async function VehicleDetailPage({ params }: PageProps) {
           key={vehicle.id}
           images={vehicle.images}
           title={title}
-          vehicleId={vehicle.id}
         />
 
         <div className="space-y-6">
