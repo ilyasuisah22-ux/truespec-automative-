@@ -224,7 +224,7 @@ export function CinematicHero({
           peeking into the first screen, so cars are never more than one scroll
           away. Foreground copy and controls remain stationary while slides
           crossfade in the background. */}
-      <div className="container-page relative flex flex-col justify-center py-10 sm:min-h-[24rem] sm:py-16 lg:min-h-[27rem] lg:py-20">
+      <div className="container-page relative z-10 -mt-32 flex flex-col justify-center pb-10 pt-0 sm:mt-0 sm:min-h-[24rem] sm:py-16 lg:min-h-[27rem] lg:py-20">
         <div className="max-w-3xl">
           <p className="mb-4 inline-flex items-center gap-2 border border-gold-500/40 bg-gold-500/10 px-3.5 py-1.5 text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-gold-300">
             <span aria-hidden className="size-1.5 rounded-full bg-gold-400" />
